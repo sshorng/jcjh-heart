@@ -390,8 +390,10 @@
             position: absolute;
             top: 2rem;
             right: 2rem;
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: #fff0f0;
+            /* 淺粉色背景 */
+            border: 1px solid #ffdada;
+            /* 粉色邊框 */
             width: 44px;
             height: 44px;
             border-radius: 50%;
@@ -399,20 +401,21 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #ddd;
+            color: var(--primary-coral);
+            /* 愛心顏色 */
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(242, 121, 121, 0.1);
             z-index: 10;
         }
 
         .card-like:hover {
-            color: var(--primary-coral);
             transform: scale(1.1);
+            background: #ffe5e5;
         }
 
         .card-like.liked {
-            color: var(--primary-coral);
-            background: #fff;
+            background: #ffdada;
+            /* 按讚後顏色加深一點 */
         }
 
         .like-count {
@@ -1053,11 +1056,21 @@
                 });
             }
 
-            // 生成整合式 QR Code (使用新的緋紅色 f27979)
-            const currentUrl = window.location.href.split('?')[0];
+            // 生成整合式 QR Code
+            let currentUrl = window.location.origin;
+            if (currentUrl === "null") { // 處理 file:// 協議
+                currentUrl = window.location.href.split('?')[0];
+            } else {
+                currentUrl = window.location.origin + window.location.pathname;
+            }
+
             const writeUrl = `${currentUrl}?write=true`;
             if (document.getElementById('fabQrImg')) {
-                document.getElementById('fabQrImg').src = `https://quickchart.io/qr?text=${encodeURIComponent(writeUrl)}&size=150&margin=0&dark=f27979&light=ffffff00`;
+                // 如果是本地檔案，在 console 給予警告提示，並確保 QR Code 是黑色的提高對比度
+                const isLocal = window.location.protocol === 'file:';
+                if (isLocal) console.warn("偵測到本地檔案執行。QR Code 將包含本地路徑，手機掃描將無法跨裝置讀取。");
+
+                document.getElementById('fabQrImg').src = `https://quickchart.io/qr?text=${encodeURIComponent(writeUrl)}&size=150&margin=0&dark=f27979&light=ffffff`;
             }
 
             // 關鍵功能：掃碼即寫檢測
@@ -1085,11 +1098,9 @@
             if (isLiked) {
                 likedMessages = likedMessages.filter(id => id !== msgId);
                 btn.classList.remove('liked');
-                btn.querySelector('i').className = 'far fa-heart';
             } else {
                 likedMessages.push(msgId);
                 btn.classList.add('liked');
-                btn.querySelector('i').className = 'fas fa-heart';
             }
 
             localStorage.setItem('liked_messages', JSON.stringify(likedMessages));
@@ -1291,7 +1302,7 @@
                     <div class="card-author">${msg.displayName}</div>
                 </div>
                 <button class="card-like ${likedClass}" onclick="toggleLike('${msg.id}', this)" title="送他一個心">
-                    <i class="${heartIcon}"></i>
+                    <i class="fas fa-heart"></i>
                     ${msg.likes > 0 ? `<span class="like-count">${msg.likes}</span>` : ''}
                 </button>
             `;
