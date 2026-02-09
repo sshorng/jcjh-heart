@@ -829,21 +829,17 @@
     <div id="messageBoard"></div>
 
     <!-- 整合式功能球：QR + 寫留言 -->
+    <!-- 整合式功能球：QR + 寫留言 -->
     <div class="fab-container">
-        <!-- 分享留言板 QR Code (預設隱藏，點擊分享按鈕後顯示) -->
-        <div id="shareWriteQrWrapper" class="fab-qr-wrapper" style="display: none;" title="掃碼即可寫留言（免設定）">
+        <!-- 常駐 QR Code (掃碼即用) -->
+        <div id="shareWriteQrWrapper" class="fab-qr-wrapper" title="掃碼即可寫留言（免設定）">
             <img id="fabQrImg" class="fab-qr-img" src="" alt="QR">
-            <div style="text-align: center; font-size: 0.7rem; color: #888; margin-top: 5px;">掃碼寫留言</div>
         </div>
-        <div class="fab-button-group">
-            <button class="fab fab-secondary" id="shareWriteBtn" onclick="toggleShareWriteQr()" title="分享留言板 QR Code">
-                <i class="fas fa-qrcode"></i>
-            </button>
-            <button class="fab" onclick="openPostModal()">
-                <i class="fas fa-feather-alt pulsate"></i>
-                <span>寫留言</span>
-            </button>
-        </div>
+
+        <button class="fab" onclick="openPostModal()">
+            <i class="fas fa-feather-alt pulsate"></i>
+            <span>寫留言</span>
+        </button>
     </div>
 
     <!-- 右下角隱藏入口 -->
