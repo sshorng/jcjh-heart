@@ -582,7 +582,7 @@
             color: #4e342e;
         }
 
-        input,
+        input:not([type="checkbox"]):not([type="radio"]),
         select,
         textarea {
             width: 100%;
@@ -641,6 +641,8 @@
 
         .admin-list {
             list-style: none;
+            padding: 0;
+            margin: 0;
             max-height: 50vh;
             overflow-y: auto;
         }
@@ -659,14 +661,16 @@
 
         .admin-item {
             background: white;
-            margin-bottom: 0.5rem;
-            padding: 0.6rem 1rem;
-            border-radius: 6px;
+            margin-bottom: 0.8rem;
+            padding: 1rem;
+            border-radius: 12px;
             border: 1px solid #eee;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            /* 改為頂端對齊，避免內容多時按鈕居中 */
             gap: 1rem;
             font-size: 0.85rem;
+            transition: all 0.2s ease;
         }
 
         .admin-item:hover {
@@ -676,6 +680,9 @@
 
         .admin-item .item-checkbox {
             flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            margin-top: 4px;
         }
 
         .admin-item .item-info {
@@ -1365,7 +1372,7 @@
         // --- 送出留言 ---
         async function submitDraft() {
             if (!currentUserEmail) {
-                showModal('提示', '請先使用 Google 帳號登入，以維護校園留言環境。', 'warning');
+                showModal('提示', '請先使用學校 Google 帳號登入，以維護校園留言環境。', 'warning');
                 return;
             }
 
