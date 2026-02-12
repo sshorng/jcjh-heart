@@ -11,19 +11,22 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SweetAlert2 for beautiful modals -->
+    <!-- SweetAlert2 & Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
-            --primary-coral: #f27979;
-            /* 輕緋紅 */
-            --soft-cream: #fffafb;
-            /* 偏粉的奶白色 */
+            --primary-coral: #e66767;
+            /* 加深珊瑚紅 */
+            --soft-cream: #fcebe6;
+            /* 再次加深背景基準色 */
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.4);
             --font-main: 'Outfit', 'Noto Sans TC', sans-serif;
-            --card-shadow: 0 10px 40px rgba(107, 79, 79, 0.05);
+            --card-shadow: 0 15px 50px rgba(107, 79, 79, 0.18);
+            /* 提高陰影不透明度 */
         }
+
 
         * {
             margin: 0;
@@ -34,7 +37,7 @@
 
         body {
             font-family: var(--font-main);
-            background: #fff9f5;
+            background: var(--soft-cream);
             margin: 0;
             min-height: 100vh;
             overflow: hidden;
@@ -50,7 +53,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #fff9f5;
+            background: var(--soft-cream);
+            /* 加入極薄的顆粒感紋理，打破大螢幕的糊化感 */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            background-blend-mode: soft-light;
+            opacity: 0.96;
             z-index: -1;
             overflow: hidden;
         }
@@ -62,22 +69,23 @@
             width: 80vmax;
             height: 80vmax;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.15;
+            filter: blur(60px);
+            opacity: 0.35;
+            /* 再次提高光暈不透明度 */
             z-index: -1;
             animation: drift 25s infinite alternate ease-in-out;
         }
 
         .ambient-glow::before {
-            background: radial-gradient(circle, #ff8e8e 0%, transparent 70%);
-            /* 緋紅光 */
+            background: radial-gradient(circle, #ff6b6b 0%, transparent 70%);
+            /* 加深光暈顏色 */
             top: -20%;
             left: -10%;
         }
 
         .ambient-glow::after {
-            background: radial-gradient(circle, #f2a3a3 0%, transparent 70%);
-            /* 柔粉光 */
+            background: radial-gradient(circle, #f08a8a 0%, transparent 70%);
+            /* 加深光暈顏色 */
             bottom: -20%;
             right: -10%;
             animation-duration: 35s;
@@ -119,6 +127,60 @@
             align-items: center;
             gap: 1.2rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-bar {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 0.7rem 1.6rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 192, 203, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .header-bar .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .header-bar .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tagline-main {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4a3e3e;
+            letter-spacing: 1px;
+        }
+
+        .tagline-sub {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
         }
 
         .logo-icon {
@@ -240,16 +302,15 @@
             padding-top: 3.2rem;
             width: 340px;
             min-height: 220px;
-            box-shadow:
-                0 15px 45px rgba(139, 90, 43, 0.08),
-                0 5px 15px rgba(139, 90, 43, 0.03);
+            box-shadow: var(--card-shadow);
             position: absolute;
             display: flex;
             flex-direction: column;
             gap: 1.2rem;
             will-change: transform, opacity;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            border: none;
+            border: 1px solid #e8d5d5;
+            /* 加入實體細邊框，確保在任何螢幕皆清晰 */
             z-index: 100;
             /* 高於按鈕區域 */
             pointer-events: auto;
@@ -275,6 +336,40 @@
             background-size: 4px 4px;
         }
 
+        /* 行政釘選公告專用樣式 - 金金色系 */
+        .message-card.pinned-card {
+            background: #fffcf0;
+            border: 2px solid #f1c40f;
+            box-shadow: 0 20px 60px rgba(241, 196, 15, 0.15);
+        }
+
+        .message-card.pinned-card::before {
+            background: rgba(241, 196, 15, 0.6);
+            width: 120px;
+            height: 35px;
+            box-shadow: 0 2px 8px rgba(241, 196, 15, 0.2);
+        }
+
+        .badge-pinned {
+            background: #f1c40f !important;
+            color: #7f6000 !important;
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0% {
+                box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(241, 196, 15, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(241, 196, 15, 0);
+            }
+        }
+
         .message-card:hover {
             transform: translateY(-12px) rotate(var(--rot, 0deg)) scale(1.03) !important;
             box-shadow: 0 30px 70px rgba(139, 90, 43, 0.12);
@@ -294,13 +389,48 @@
 
         .card-content {
             font-size: var(--font-size, 1.4rem);
-            line-height: 1.55;
+            line-height: 1.5;
             font-weight: 400;
             color: #4a3e3e;
             flex: 1;
-            padding-right: 0;
+            padding: 10px 0;
+            word-break: break-all;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             overflow: visible;
-            /* 螢幕播放不使用滾動 */
+        }
+
+        /* 當有換行時：改為靠左，且頂部對齊 */
+        .card-content.has-newline {
+            text-align: left;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        /* Markdown 標籤微修 */
+        .card-content p {
+            margin: 0 0 0.4em 0;
+            width: 100%;
+            line-height: inherit;
+        }
+
+        .card-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-content ul,
+        .card-content ol {
+            padding-left: 1.2rem;
+            margin: 0.2rem 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        .card-content strong {
+            color: var(--primary-coral);
         }
 
         /* 隱藏原生滾動條，改用極細美化版 */
@@ -313,9 +443,9 @@
             border-radius: 10px;
         }
 
-        /* 字級縮放類別 - 針對螢幕播放優化 */
+        /* 字級縮放類別 - 調整數值，增加 mini 級避免撐大 */
         .size-large {
-            --font-size: 1.65rem;
+            --font-size: 1.55rem;
         }
 
         .size-medium {
@@ -324,6 +454,10 @@
 
         .size-small {
             --font-size: 1.15rem;
+        }
+
+        .size-mini {
+            --font-size: 0.95rem;
         }
 
         .card-footer {
@@ -401,8 +535,8 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: var(--primary-coral);
-            /* 愛心顏色 */
+            color: #e74c3c;
+            /* 愛心必須是鮮紅色 */
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(242, 121, 121, 0.1);
             z-index: 10;
@@ -448,9 +582,47 @@
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .fab:hover {
+        .btn-write-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #f27979 0%, #faa6a6 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            box-shadow: 0 15px 35px rgba(242, 121, 121, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            z-index: 100;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-write-fab:hover {
             transform: translateY(-5px) scale(1.05);
             box-shadow: 0 20px 45px rgba(255, 138, 113, 0.5);
+        }
+
+        /* 分享寫留言佈置 */
+        .fab-wrapper {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+
+        .fab:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 45px rgba(212, 163, 115, 0.5);
         }
 
         .fab i {
@@ -467,8 +639,8 @@
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            color: var(--primary-coral);
-            border: 2px solid var(--primary-coral);
+            color: #d4a373;
+            border: 2px solid #d4a373;
             padding: 1rem;
             border-radius: 50%;
             width: 56px;
@@ -875,7 +1047,7 @@
                         💝 <strong>投稿小提醒</strong><br>
                         • 請用正向、溫暖的文字傳遞心意<br>
                         • 留言將經老師審核後公開顯示<br>
-                        • 系統會記錄帳號，請愛護校園友善環境
+                        • 請使用學校帳號登入，系統會記錄帳號，請愛護校園友善環境
                     </p>
                 </div>
 
@@ -939,7 +1111,15 @@
     <div id="adminModal" class="modal-overlay" onclick="if(event.target === this) closeModal('adminModal')">
         <div class="modal-content" style="max-width: 800px; width: 95%;">
             <span class="modal-close" onclick="closeModal('adminModal')">&times;</span>
-            <h2 style="color: var(--warm-brown); text-align: center; margin-bottom: 1rem;">管理後台</h2>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                <h2 style="color: var(--warm-brown); margin: 0;">管理後台</h2>
+                <a id="admin-sheet-link"
+                    href="https://docs.google.com/spreadsheets/d/1NvB-zNotehm14SQRVR3XgppiLtMA2ZBL-7bqDG2bYmI/edit?gid=0#gid=0"
+                    target="_blank" title="開啟雲端試算表原始資料"
+                    style="color: #27ae60; font-size: 1.2rem; text-decoration: none; display: none;">
+                    <i class="fas fa-file-excel"></i>
+                </a>
+            </div>
 
 
 
@@ -959,6 +1139,7 @@
                         <div class="tab-btn active" onclick="switchTab('待審核')">待審核</div>
                         <div class="tab-btn" onclick="switchTab('通過')">已通過</div>
                         <div class="tab-btn" onclick="switchTab('駁回')">已駁回</div>
+                        <div class="tab-btn" onclick="switchTab('已下架')">已下架</div>
                     </div>
 
                     <div id="tab-content-list" class="tab-pane">
@@ -1028,7 +1209,12 @@
             // 只有在顯示模式或管理模式下，才載入留言
             if (url && (isDisplayMode || isAdminMode)) {
                 loadMessages();
-                setInterval(loadMessages, 30000);
+                setInterval(loadMessages, 20000); // 每 20 秒更新一次資料庫
+            }
+
+            // 電視牆穩定性：每 2 小時自動重新整理一次網頁，確保 code 更新與穩定
+            if (isDisplayMode) {
+                setInterval(() => location.reload(), 7200000);
             }
 
             // 預生成分享用的寫留言 QR Code (指向預設模式)
@@ -1146,7 +1332,7 @@
 
             try {
                 // 修正邏輯：判斷哪些行動應該使用 POST
-                const isPost = (action === 'submitMessage' || action === 'updateStatus');
+                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages');
 
                 const options = {
                     method: isPost ? 'POST' : 'GET',
@@ -1162,7 +1348,7 @@
                     }
                 } else {
                     // POST 請求：將資料與行動包裝在 Body
-                    options.body = JSON.stringify({ ...data, action });
+                    options.body = JSON.stringify({ ...data, action, ...params }); // Merge params into body for POST
                 }
 
                 const response = await fetch(targetUrl, options);
@@ -1188,10 +1374,10 @@
                 allMessages = result;
                 if (allMessages.length === 0) {
                     board.innerHTML = '<div style="opacity:0.5;">目前還沒有溫暖的留言，快來寫第一則吧！</div>';
-                } else {
+                } else if (board.innerHTML.includes('目前還沒有')) {
                     board.innerHTML = '';
-                    // 初始時不立即顯示，讓 rotateMessages 逐步添加
                 }
+                // 不再執行 board.innerHTML = ''，讓 rotateMessages 自然更迭留言
             }
         }
 
@@ -1211,20 +1397,29 @@
             const currentCards = board.querySelectorAll('.message-card');
 
             if (currentCards.length < maxOnScreen) {
-                // 尋找一個不在畫面上的索引
-                let availableIndexes = [];
+                // 優先選擇「釘選」且不在畫面上的留言
+                let pinnedAvailable = [];
+                let normalAvailable = [];
+
                 for (let i = 0; i < allMessages.length; i++) {
                     if (!displayingIndexes.has(i)) {
-                        availableIndexes.push(i);
+                        if (allMessages[i].isPinned) pinnedAvailable.push(i);
+                        else normalAvailable.push(i);
                     }
                 }
 
-                if (availableIndexes.length === 0) return; // 所有留言都在畫面上了
+                if (pinnedAvailable.length > 0) {
+                    // 為了確保釘選公告能第一時間出現在畫面上，
+                    // 只要有釘選留言且不在畫面上，就立即載入。
+                    randomPick = pinnedAvailable[Math.floor(Math.random() * pinnedAvailable.length)];
+                } else if (normalAvailable.length > 0) {
+                    randomPick = normalAvailable[Math.floor(Math.random() * normalAvailable.length)];
+                } else {
+                    return;
+                }
 
-                const randomPick = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
                 displayingIndexes.add(randomPick);
                 createCard(allMessages[randomPick], boardWidth, boardHeight, randomPick);
-
             }
         }
 
@@ -1265,26 +1460,48 @@
             gridPositions.sort(() => Math.random() - 0.5);
         }
 
+        // --- 追蹤釘選公告垂直堆疊狀態 ---
+        let pinnedCount = 0;
 
         function createCard(msg, bw, bh, index) {
             const board = document.getElementById('messageBoard');
             const card = document.createElement('div');
-            card.className = 'message-card animate-float';
+            const isPinned = msg.isPinned === true;
+            card.className = `message-card animate-float ${isPinned ? 'pinned-card' : ''}`;
 
-            // 使用網格位置並加入物理安全檢查
-            if (gridPositions.length === 0 || positionIndex >= gridPositions.length) {
-                calculateGridPositions();
-                positionIndex = 0;
+            let finalX, finalY, finalRot;
+
+            if (isPinned) {
+                // 釘選公告：固定在左側「建成心能量」標題下方
+                // 統計目前畫面上已有的釘選卡片數量
+                const existingPinned = board.querySelectorAll('.pinned-card').length;
+
+                const margin = 24; // 與標題對齊
+                const startY = 100; // 標題下方的起始高度
+                const spacingY = 280; // 每张卡片的高度 + 間距
+
+                finalX = margin;
+                finalY = startY + (existingPinned * spacingY);
+                finalRot = -2; // 稍微傾斜更有質感
+            } else {
+                // 一般留言：使用網格位置
+                if (gridPositions.length === 0 || positionIndex >= gridPositions.length) {
+                    calculateGridPositions();
+                    positionIndex = 0;
+                }
+                const pos = gridPositions[positionIndex];
+                positionIndex++;
+
+                finalX = pos.x;
+                finalY = pos.y;
+                finalRot = pos.rot;
             }
-            const pos = gridPositions[positionIndex];
-            positionIndex++;
 
             // 安全限制：確保 left/top 不會讓卡片超出
-            const safeX = Math.max(20, Math.min(pos.x, window.innerWidth - 360));
-            const safeY = Math.max(80, Math.min(pos.y, window.innerHeight - 300));
+            const safeX = Math.max(10, Math.min(finalX, bw - 350));
+            const safeY = Math.max(50, Math.min(finalY, bh - 280));
 
-            card.style.setProperty('--rot', `${pos.rot}deg`);
-            card.style.setProperty('--tape-rot', `${(Math.random() - 0.5) * 8}deg`);
+            card.style.setProperty('--rot', `${finalRot}deg`);
             card.style.top = `${safeY}px`;
             card.style.left = `${safeX}px`;
 
@@ -1299,17 +1516,22 @@
             card.style.setProperty('--tape-pos', tapePos);
             card.style.setProperty('--tape-rot', tapeRot + 'deg');
 
-            // --- 大螢幕字級優化運算 ---
+            // --- 內容處理：Markdown 與 換行偵測 ---
+            const hasNewline = msg.content.includes('\n');
+            const renderedContent = typeof marked !== 'undefined' ? marked.parse(msg.content) : msg.content;
+
+            // --- 更細緻的字級優化，避免內容撐大卡片 ---
             const contentLen = msg.content.length;
             let sizeClass = "size-small";
-            if (contentLen < 40) sizeClass = "size-large";
-            else if (contentLen < 80) sizeClass = "size-medium";
+            if (contentLen < 35) sizeClass = "size-large";
+            else if (contentLen < 65) sizeClass = "size-medium";
+            else if (contentLen > 110) sizeClass = "size-mini"; // 內容超長時縮到最小
 
             card.innerHTML = `
-                <div class="card-greeting">致：${msg.target}</div>
-                <div class="card-content ${sizeClass}">${msg.content}</div>
+                <div class="card-greeting">${isPinned ? '📌 行政公告：' : '致：'}${msg.target}</div>
+                <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${renderedContent}</div>
                 <div class="card-footer">
-                    <div class="card-tag tag-${msg.tag}">${msg.tag}</div>
+                    <div class="card-tag ${isPinned ? 'badge-pinned' : 'tag-' + msg.tag}">${isPinned ? '📌 重要公告' : msg.tag}</div>
                     <div class="card-author">${msg.displayName}</div>
                 </div>
                 <button class="card-like ${likedClass}" onclick="toggleLike('${msg.id}', this)" title="送他一個心">
@@ -1331,7 +1553,10 @@
             card.style.animationDelay = `0s, ${Math.random() * 2}s`;
 
 
-            // 12秒後移除
+            // 關鍵安全鎖：若為釘選公告，強制跳出移除邏輯，絕對不消失
+            if (isPinned) return;
+
+            // 一般留言：11 秒後啟動消失動畫
             setTimeout(() => {
                 card.classList.add('fade-out');
                 setTimeout(() => {
@@ -1452,20 +1677,30 @@
 
         async function doAdminLogin() {
             const password = document.getElementById('adminPassword').value;
-            const res = await fetchAPI('adminGetMessages', null, { password });
+            // 修正：fetchAPI 的參數調用方式與 loadAdminMessages 保持一致
+            const res = await fetchAPI('adminGetMessages', { password });
 
-            if (res && !res.error) {
-                localStorage.setItem('admin_password', password); // 記憶登入狀態 (持久化)
+            if (res && res.messages) {
+                localStorage.setItem('admin_password', password);
                 renderAdminUI(res);
             } else {
-                showModal('錯誤', '密碼不正確。', 'error');
+                showModal('錯誤', res.error || '密碼不正確。', 'error');
             }
         }
 
         function renderAdminUI(data) {
-            adminRawData = data;
+            // 修正：從回傳物件中提取 messages 陣列
+            adminRawData = data.messages || [];
             document.getElementById('admin-login-ui').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
+
+            // 同步更新與顯示試算表連結
+            const sheetLink = document.getElementById('admin-sheet-link');
+            if (sheetLink) {
+                if (data.sheetUrl) sheetLink.href = data.sheetUrl;
+                sheetLink.style.display = 'inline-block';
+            }
+
             switchTab(currentTab);
         }
 
@@ -1477,9 +1712,49 @@
 
             const list = document.getElementById('admin-msg-list');
             list.innerHTML = '';
-            document.getElementById('batch-actions-bar').style.display = (tab === '待審核') ? 'flex' : 'none';
+            // 修正：所有分頁都支援批次管理
+            document.getElementById('batch-actions-bar').style.display = 'flex';
 
-            const filtered = adminRawData.filter(m => m.status === tab);
+            // 批次按鈕動態調整顏色 (如果是駁回或下架分頁，按鈕功能不變但顯示上更直覺)
+            const approveBtn = document.querySelector('.btn-approve');
+            const rejectBtn = document.querySelector('.btn-reject');
+            if (tab === '通過') {
+                approveBtn.style.display = 'none';
+                rejectBtn.textContent = '批次駁回';
+            } else if (tab === '駁回') {
+                approveBtn.style.display = 'inline-block';
+                approveBtn.textContent = '批次通過';
+                rejectBtn.style.display = 'none';
+            } else if (tab === '已下架') {
+                approveBtn.style.display = 'inline-block';
+                approveBtn.textContent = '重新上架';
+                rejectBtn.textContent = '批次駁回';
+            } else {
+                approveBtn.style.display = 'inline-block';
+                approveBtn.textContent = '批次通過';
+                rejectBtn.style.display = 'inline-block';
+                rejectBtn.textContent = '批次駁回';
+            }
+
+            const now = new Date().getTime();
+            const twoWeeksMs = 14 * 24 * 60 * 60 * 1000;
+
+            const filtered = adminRawData.filter(m => {
+                const messageTime = new Date(m.timestamp).getTime();
+                const isExpired = (now - messageTime) > twoWeeksMs;
+
+                if (tab === '已下架') {
+                    // For '已下架' tab, show messages that were '通過' and are now expired,
+                    // but exclude pinned messages from being considered 'expired' for display here.
+                    return m.status === '通過' && isExpired && !m.isPinned;
+                } else if (tab === '通過') {
+                    // For '通過' tab, show messages that are '通過' and not expired, or are pinned.
+                    return m.status === '通過' && (!isExpired || m.isPinned);
+                } else {
+                    return m.status === tab;
+                }
+            });
+
             if (filtered.length === 0) {
                 list.innerHTML = `<li style="text-align:center; padding: 2rem; color: #999;">目前沒有${tab}的留言。</li>`;
                 return;
@@ -1488,19 +1763,26 @@
             filtered.forEach(m => {
                 const li = document.createElement('li');
                 li.className = 'admin-item';
-                const dateStr = new Date(m.timestamp).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const msgDate = new Date(m.timestamp);
+                const isExpired = (new Date().getTime() - msgDate.getTime()) > twoWeeksMs;
+                const expiredBadge = (m.status === '通過' && isExpired && !m.isPinned) ? `<span style="background:#eee; color:#999; padding:2px 6px; border-radius:4px; font-size:10px; margin-left:5px;">時效已屆</span>` : '';
+
+                const dateStr = msgDate.toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 li.innerHTML = `
                     <input type="checkbox" class="msg-checkbox item-checkbox" value="${m.id}">
                     <div class="item-info">
-                        <div class="item-meta">${dateStr} · <span class="item-target">${m.target}</span> · ${m.tag}</div>
+                        <div class="item-meta">${dateStr} · <span class="item-target">${m.target}</span> · ${m.tag} ${expiredBadge}</div>
                         <div class="item-content">${m.content}</div>
                         <div style="font-size:0.75rem; color:#888; margin-top:2px;">
                             顯示：${m.displayName} ｜ 真實：${m.realName || '不具名'}（${m.account}）
                         </div>
-
                     </div>
                     <div class="admin-actions">
-                        ${m.status !== '通過' ? `<button class="btn-approve" onclick="updateStatus('${m.id}', '通過')">✓</button>` : ''}
+                        <button class="btn-approve" style="background: ${m.isPinned ? '#f39c12' : '#95a5a6'}; min-width: 40px;"
+                            onclick="togglePin('${m.id}', ${!m.isPinned})" title="${m.isPinned ? '取消釘選' : '釘選為公告'}">
+                            <i class="fas fa-thumbtack"></i>
+                        </button>
+                        ${(m.status !== '通過' || (isExpired && !m.isPinned)) ? `<button class="btn-approve" onclick="updateStatus('${m.id}', '通過')" title="重新上架">✓</button>` : ''}
                         ${m.status !== '駁回' ? `<button class="btn-reject" onclick="updateStatus('${m.id}', '駁回')">✗</button>` : ''}
                     </div>
                 `;
@@ -1536,10 +1818,18 @@
         async function loadAdminMessages() {
             const password = localStorage.getItem('admin_password');
             if (!password) return;
-            const res = await fetchAPI('adminGetMessages', null, { password });
-            if (res && !res.error) {
-                adminRawData = res;
+
+            const res = await fetchAPI('adminGetMessages', { password });
+            if (res && res.messages) {
+                adminRawData = res.messages;
                 switchTab(currentTab);
+            } else if (res && res.error) {
+                showModal('錯誤', res.error, 'error');
+                // If there's an error, ensure the login UI is visible
+                document.getElementById('admin-login-ui').style.display = 'block';
+                document.getElementById('admin-panel').style.display = 'none';
+                const loadingHint = document.getElementById('admin-loading-hint');
+                if (loadingHint) loadingHint.style.display = 'none';
             }
         }
 
@@ -1559,6 +1849,16 @@
             if (res && res.status === "success") {
                 loadAdminMessages();
                 loadMessages();
+            }
+        }
+
+        async function togglePin(id, isPinned) {
+            const password = localStorage.getItem('admin_password');
+            const res = await fetchAPI('updatePin', { id, isPinned, password });
+            if (res && res.status === "success") {
+                loadAdminMessages();
+                loadMessages();
+                showModal('已更新', isPinned ? '已成功釘選為公告' : '已取消釘選', 'success');
             }
         }
 
