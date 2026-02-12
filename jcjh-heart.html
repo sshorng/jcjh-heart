@@ -817,6 +817,11 @@
         body.post-only-mode .admin-trigger {
             display: none !important;
         }
+
+        /* 投稿模式下禁止關閉投稿視窗 */
+        body.post-only-mode #postModal .modal-close {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -1408,9 +1413,31 @@
             const res = await fetchAPI('submitMessage', data);
 
             if (res && res.status === "success") {
-                showModal('送出成功', res.message, 'success');
-                closeModal('postModal');
-                document.getElementById('postForm').reset();
+                const isPostOnly = document.body.classList.contains('post-only-mode');
+
+                if (isPostOnly) {
+                    // 投稿模式：不關閉視窗，改為顯示感謝畫面
+                    const modalContent = document.querySelector('#postModal .modal-content');
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem 1rem;">
+                            <div class="pulsate" style="font-size: 4rem; color: #27ae60; margin-bottom: 1.5rem;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h2 style="color: var(--warm-brown); margin-bottom: 1rem;">投稿成功！</h2>
+                            <p style="font-size: 1.1rem; color: #666; line-height: 1.6; margin-bottom: 2rem;">
+                                留言審核後將顯示於<br><strong style="color: var(--primary-coral); font-size: 1.3rem;">「於庭電視牆」</strong>
+                            </p>
+                            <button class="btn-submit" onclick="location.reload()" style="width: auto; padding: 0.8rem 2.5rem;">
+                                <i class="fas fa-feather-alt"></i> 再寫一則
+                            </button>
+                        </div>
+                    `;
+                    showModal('送出成功', '感謝您的溫暖投稿！', 'success');
+                } else {
+                    showModal('送出成功', res.message, 'success');
+                    closeModal('postModal');
+                    document.getElementById('postForm').reset();
+                }
             } else {
                 showModal('失敗', '留言送出失敗，請檢查網路。', 'error');
             }
@@ -1630,7 +1657,13 @@
             }
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModal(id) {
+            // 在投稿專用模式下，禁止關閉投稿視窗
+            if (id === 'postModal' && document.body.classList.contains('post-only-mode')) {
+                return;
+            }
+            document.getElementById(id).style.display = 'none';
+        }
 
         function updateCharCount() {
             const content = document.getElementById('content').value;
