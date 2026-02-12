@@ -1005,7 +1005,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         // --- 設定與變數 ---
-        const _G = "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Wk9yVVAzdmVLSTVvZXhDT1dVSHFMWGVkdW80YlJscFJvZ2xwQ0YtemwxTnhlTHVLRFRCY0pnN28wQWN4OXFDMVIvZXhlYw==";
+        const _G = "https://script.google.com/macros/s/AKfycbzZOrUP3veKI5oexCOwUHqLXeduo4bRlpRoglpCF-zl1NxeLuKDTBcJg7o0Acx9qC0R/exec";
         let currentUserEmail = null;
         let currentUserName = null;
         let allMessages = [];
@@ -1027,12 +1027,9 @@
 
         // --- 優先順序邏輯 ---
         function getGasUrl() {
-            try {
-                return atob(_G);
-            } catch (e) {
-                return "";
-            }
+            return _G;
         }
+
 
 
         // --- 初始化頁面 ---
