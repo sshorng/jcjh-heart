@@ -1776,7 +1776,7 @@
 
             try {
                 // 修正邏輯：判斷哪些行動應該使用 POST
-                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements' || action === 'updateSystemConfig');
+                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements' || action === 'updateSystemConfig' || action === 'updateKeywordEffects');
 
                 const options = {
                     method: isPost ? 'POST' : 'GET',
