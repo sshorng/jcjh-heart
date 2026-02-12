@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Color+Emoji&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 & Marked.js -->
@@ -36,14 +36,14 @@
         }
 
         body {
-            font-family: var(--font-main);
-            background: var(--soft-cream);
+            font-family: 'Outfit', 'Noto Sans TC', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+            background: #fff5f2;
+            color: #4a3e3e;
             margin: 0;
-            min-height: 100vh;
+            padding: 0;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            color: #2d3436;
+            height: 100vh;
+            width: 100vw;
         }
 
         /* 巔峰質感：流體動態漸層背景 */
@@ -114,6 +114,7 @@
             will-change: transform, opacity;
             z-index: 10000;
             /* 高於一切 */
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', serif;
         }
 
         /* 取消關鍵字高亮樣式
