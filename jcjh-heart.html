@@ -106,6 +106,182 @@
             }
         }
 
+        /* --- 粒子特效系統 --- */
+        /* 粒子特效特效飛舞範圍不受限 */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            will-change: transform, opacity;
+            z-index: 10000;
+            /* 高於一切 */
+        }
+
+        /* 取消關鍵字高亮樣式
+        .keyword-highlight { ... } 
+        */
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes rainDown {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(200px) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes burstOut {
+            0% {
+                transform: translate(0, 0) scale(0.5);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+        @keyframes spiralIn {
+            0% {
+                transform: translate(0, 0) scale(0.2) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fireworkUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-150px) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-180px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sparkleAnim {
+
+            0%,
+            100% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(45deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--ex), var(--ey)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* ❄️ 飄雪/落葉模式 */
+        @keyframes snowFall {
+            0% {
+                transform: translate(0, -10px) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--sway), 100vh) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+        /* 🏀 彈跳模式 */
+        @keyframes bounceAnim {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-30px);
+            }
+
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* 💓 脈動模式 */
+        @keyframes pulseHeart {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+
         header {
             /* 移除可能干擾固定定位標誌的邊距 */
             z-index: 300;
@@ -424,7 +600,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative;
+            /* 關鍵：讓特效對準卡片 */
             overflow: visible;
+            /* 恢復通透感 */
         }
 
         /* 當有換行時：改為靠左，且頂部對齊 */
@@ -1294,6 +1473,7 @@
                         <div class="tab-btn" onclick="switchTab('跑馬燈管理')">跑馬燈管理</div>
                         <div class="tab-btn" onclick="switchTab('駁回')">已駁回</div>
                         <div class="tab-btn" onclick="switchTab('已下架')">已下架</div>
+                        <div class="tab-btn" onclick="switchTab('特效設定')">特效設定</div>
                         <div class="tab-btn" onclick="switchTab('系統設定')">系統設定</div>
                     </div>
 
@@ -1321,6 +1501,50 @@
                         <button class="btn-submit" onclick="saveAnnouncements()"
                             style="margin-top: 1.5rem; width: 100%;">
                             儲存並更新跑馬燈
+                        </button>
+                        </button>
+                    </div>
+
+                    <!-- 特效設定分頁 (NEW) -->
+                    <div id="admin-effect-panel" class="tab-pane" style="display: none;">
+                        <p style="font-size: 0.85rem; color: #888;">設定關鍵字觸發的特效（支援 Emoji 與多種動態）：</p>
+
+                        <!-- 新增規則表單 -->
+                        <div
+                            style="background: #fff5f2; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #e66767;">
+                            <h4 style="margin: 0 0 10px 0; color: #e66767; font-size: 0.95rem;">新增特效規則</h4>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <input type="text" id="new-effect-keyword" placeholder="關鍵字 (e.g. 新年)" class="ann-input"
+                                    style="min-height: 40px; flex: 2;">
+                                <input type="text" id="new-effect-icon" placeholder="Emoji (e.g. 🧧)" class="ann-input"
+                                    style="min-height: 40px; flex: 1; text-align: center;">
+                                <select id="new-effect-mode" class="ann-input" style="min-height: 40px; flex: 2;">
+                                    <option value="burst">💥 噴發 (Burst)</option>
+                                    <option value="float">🎈 漂浮 (Float)</option>
+                                    <option value="rain">🌧️ 雨落 (Rain)</option>
+                                    <option value="spiral">🌀 螺旋 (Spiral)</option>
+                                    <option value="firework">🎆 煙火 (Firework)</option>
+                                    <option value="sparkle">✨ 閃爍 (Sparkle)</option>
+                                    <option value="snow">❄️ 飄雪 (Snow)</option>
+                                    <option value="bounce">🏀 彈跳 (Bounce)</option>
+                                    <option value="pulse">💓 脈動 (Pulse)</option>
+                                </select>
+                                <button class="btn-approve" onclick="previewCurrentEffect()"
+                                    style="flex: 1; white-space: nowrap; background: #6c5ce7; border-color: #6c5ce7;">預覽</button>
+                                <button class="btn-approve" id="btn-add-effect" onclick="addEffectRule()"
+                                    style="flex: 1; white-space: nowrap;">新增</button>
+                            </div>
+                            <input type="hidden" id="edit-effect-index" value="-1">
+                        </div>
+
+                        <!-- 規則列表 -->
+                        <div id="effect-list-editor" class="ann-editor-container">
+                            <!-- JS 動態產生 -->
+                        </div>
+
+                        <button class="btn-submit" onclick="saveKeywordEffects()"
+                            style="margin-top: 1.5rem; width: 100%;">
+                            儲存特效設定
                         </button>
                     </div>
 
@@ -1359,6 +1583,7 @@
         let usedIndexes = new Set(); // 用於追蹤已顯示的留言索引
         let likedMessages = JSON.parse(localStorage.getItem('liked_messages') || '[]'); // 已按讚的留言 ID
         let isInternalTest = false; // 內部測試模式狀態
+        let currentEffects = []; // 儲存特效規則
         // 敏感詞清單（可自行擴充）
         const SENSITIVE_WORDS = [
             '笨蛋', '白癡', '去死', '智障', '廢物', '垃圾', '滾', '爛',
@@ -1396,6 +1621,8 @@
                 loadMessages();
                 loadAnnouncements(); // 載入跑馬燈公告
                 checkSystemConfig(); // 檢查系統設定（測試模式）
+                loadKeywordEffects(); // 載入特效規則設定
+
                 setInterval(loadMessages, 20000); // 每 20 秒更新一次資料庫
                 setInterval(loadAnnouncements, 45000); // 跑馬燈更新頻率稍低
                 setInterval(checkSystemConfig, 60000); // 每分鐘檢查一次系統狀態
@@ -1734,11 +1961,41 @@
             let sizeClass = "size-small";
             if (contentLen < 35) sizeClass = "size-large";
             else if (contentLen < 65) sizeClass = "size-medium";
-            else if (contentLen > 110) sizeClass = "size-mini"; // 內容超長時縮到最小
+            else if (contentLen > 110) sizeClass = "size-mini";
+
+            // --- 關鍵字特效偵測 (支援多個關鍵字用逗號分隔) ---
+            let effectAttr = '';
+            let matchedEffect = null;
+
+            if (currentEffects && currentEffects.length > 0) {
+                let firstIndex = Infinity;
+
+                currentEffects.forEach(eff => {
+                    // 拆分關鍵字（支援 考試,段考）
+                    const keywords = eff.keyword.split(',').map(k => k.trim());
+                    keywords.forEach(kw => {
+                        const idx = msg.content.indexOf(kw);
+                        if (idx !== -1 && idx < firstIndex) {
+                            firstIndex = idx;
+                            matchedEffect = eff;
+                        }
+                    });
+                });
+
+                if (matchedEffect) {
+                    effectAttr = `onmouseenter="createParticles(this, '${matchedEffect.mode}', '${matchedEffect.icon}')"`;
+                    card.dataset.autoEffect = "true";
+                    card.dataset.effectMode = matchedEffect.mode;
+                    card.dataset.effectIcon = matchedEffect.icon;
+                }
+            }
+
+            // --- 內容處理：Markdown (取消關鍵字高亮) ---
+            let contentHtml = typeof marked !== 'undefined' ? marked.parse(msg.content) : msg.content;
 
             card.innerHTML = `
                 <div class="card-greeting">致：${msg.target}</div>
-                <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${renderedContent}</div>
+                <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}" ${effectAttr}>${contentHtml}</div>
                 <div class="card-footer">
                     <div class="card-tag tag-${msg.tag}">${msg.tag}</div>
                     <div class="card-author">${msg.displayName}</div>
@@ -1757,6 +2014,13 @@
 
 
             board.appendChild(card);
+
+            // 關鍵字特效自動觸發
+            if (card.dataset.autoEffect === "true") {
+                setTimeout(() => {
+                    createParticles(card.querySelector('.card-content'), card.dataset.effectMode, card.dataset.effectIcon);
+                }, 1000);
+            }
 
             // 隨機動畫延遲
             card.style.animationDelay = `0s, ${Math.random() * 2}s`;
@@ -1923,20 +2187,24 @@
             const msgPanel = document.getElementById('tab-content-list');
             const annPanel = document.getElementById('admin-ann-panel');
             const settingsPanel = document.getElementById('admin-settings-panel');
+            const effectPanel = document.getElementById('admin-effect-panel');
+
+            // 先隱藏所有面板
+            msgPanel.style.display = 'none';
+            annPanel.style.display = 'none';
+            settingsPanel.style.display = 'none';
+            if (effectPanel) effectPanel.style.display = 'none';
 
             if (tab === '跑馬燈管理') {
-                msgPanel.style.display = 'none';
                 annPanel.style.display = 'block';
-                settingsPanel.style.display = 'none';
                 renderAnnManagementUI();
+            } else if (tab === '特效設定') {
+                if (effectPanel) effectPanel.style.display = 'block';
+                renderEffectEditor();
             } else if (tab === '系統設定') {
-                msgPanel.style.display = 'none';
-                annPanel.style.display = 'none';
                 settingsPanel.style.display = 'block';
             } else {
                 msgPanel.style.display = 'block';
-                annPanel.style.display = 'none';
-                settingsPanel.style.display = 'none';
                 renderMessageManagementUI(tab);
             }
         }
@@ -2150,8 +2418,283 @@
                 showModal('成功', '公告已同步至跑馬燈', 'success');
                 loadAnnouncements(); // 即時載入前台顯示
             } else {
-                // 如果失敗且 fetchAPI 沒跳 Modal，這裡補一個關閉 loading 的動作
                 Swal.close();
+            }
+        }
+
+        // --- 特效規則管理 ---
+        function renderEffectEditor() {
+            const container = document.getElementById('effect-list-editor');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!currentEffects || currentEffects.length === 0) {
+                container.innerHTML = '<div style="color:#aaa; text-align:center; padding:20px;">目前沒有設定任何規則</div>';
+            } else {
+                currentEffects.forEach((eff, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'ann-editor-item';
+                    div.style.borderLeft = `4px solid var(--primary-coral)`;
+                    div.innerHTML = `
+                        <div style="flex:1; font-weight:bold; color:#555;">${eff.keyword}</div>
+                        <div style="width:40px; text-align:center;">${eff.icon}</div>
+                        <div style="width:80px; font-size:0.85rem; color:#888;">${eff.mode}</div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-approve" onclick="createParticles(this, '${eff.mode}', '${eff.icon}')" style="padding: 6px 10px; height: auto;" title="預覽特效"><i class="fas fa-play"></i></button>
+                            <button class="btn-approve" onclick="editEffectRule(${index})" style="padding: 6px 10px; height: auto; background:#f39c12; border-color:#f39c12;" title="編輯"><i class="fas fa-edit"></i></button>
+                            <button class="btn-reject" onclick="removeEffectRule(${index})" style="padding: 6px 10px; height: auto;" title="刪除"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function addEffectRule() {
+            const kInput = document.getElementById('new-effect-keyword');
+            const iInput = document.getElementById('new-effect-icon');
+            const mInput = document.getElementById('new-effect-mode');
+            const editIdxInput = document.getElementById('edit-effect-index');
+
+            const keyword = kInput.value.trim();
+            const icon = iInput.value.trim();
+            const mode = mInput.value;
+            const editIdx = parseInt(editIdxInput.value);
+
+            if (!keyword || !icon) {
+                showModal('提示', '請輸入關鍵字與圖示', 'info');
+                return;
+            }
+
+            if (!currentEffects) currentEffects = [];
+
+            if (editIdx >= 0) {
+                currentEffects[editIdx] = { keyword, icon, mode };
+                editIdxInput.value = "-1";
+                document.getElementById('btn-add-effect').textContent = "新增";
+            } else {
+                currentEffects.push({ keyword, icon, mode });
+            }
+
+            // 清空輸入框
+            kInput.value = '';
+            iInput.value = '';
+
+            renderEffectEditor();
+        }
+
+        function editEffectRule(index) {
+            const eff = currentEffects[index];
+            document.getElementById('new-effect-keyword').value = eff.keyword;
+            document.getElementById('new-effect-icon').value = eff.icon;
+            document.getElementById('new-effect-mode').value = eff.mode;
+            document.getElementById('edit-effect-index').value = index;
+            document.getElementById('btn-add-effect').textContent = "儲存修改";
+
+            // 捲動到輸入區域
+            document.getElementById('new-effect-keyword').focus();
+        }
+
+        function previewCurrentEffect() {
+            const icon = document.getElementById('new-effect-icon').value.trim();
+            const mode = document.getElementById('new-effect-mode').value;
+            const btn = event.currentTarget;
+
+            if (!icon) {
+                showModal('提示', '請先輸入一個 Emoji 圖示後再預覽', 'info');
+                return;
+            }
+
+            // 關鍵修正：鎖定全局 Body 捲軸，防止預覽時視窗跳動
+            const originalOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+
+            createParticles(btn, mode, icon);
+
+            setTimeout(() => {
+                document.body.style.overflow = originalOverflow;
+            }, 3000);
+        }
+
+        function removeEffectRule(index) {
+            currentEffects.splice(index, 1);
+            renderEffectEditor();
+        }
+
+        async function saveKeywordEffects() {
+            const password = localStorage.getItem('admin_password');
+            Swal.fire({ title: '儲存特效設定中...', didOpen: () => Swal.showLoading() });
+
+            const res = await fetchAPI('updateKeywordEffects', { effects: currentEffects, password });
+
+            if (res && res.status === "success") {
+                showModal('成功', '特效設定已更新', 'success');
+            } else {
+                Swal.close();
+                showModal('失敗', res.error || '更新失敗', 'error');
+            }
+        }
+
+        // --- 關鍵字特效引擎 ---
+        async function loadKeywordEffects() {
+            const res = await fetchAPI('getKeywordEffects');
+            if (res && Array.isArray(res)) {
+                currentEffects = res;
+                console.log("特效規則已載入", currentEffects.length);
+            }
+        }
+
+        function createParticles(element, mode, icon) {
+            // 避免重複觸發過多粒子，簡單防抖
+            if (element.dataset.isAnimating === "true") return;
+            element.dataset.isAnimating = "true";
+            setTimeout(() => delete element.dataset.isAnimating, 1000);
+
+            const rect = element.getBoundingClientRect();
+            const container = document.createElement('div');
+
+            // 針對不同模式調整容器定位 (飄雪為全螢幕)
+            if (mode === 'snow') {
+                container.style.position = 'fixed';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.width = '100vw';
+                container.style.height = '100vh';
+            } else {
+                container.style.position = 'fixed'; // 使用 fixed 定位在畫面上
+                container.style.top = rect.top + 'px';
+                container.style.left = rect.left + 'px';
+                container.style.width = rect.width + 'px';
+                container.style.height = rect.height + 'px';
+            }
+
+            container.style.pointerEvents = 'none';
+            container.style.overflow = 'visible';
+            // 確保容器疊加在所有內容之上
+            container.style.zIndex = '10000';
+            document.body.appendChild(container);
+
+            // --- 效能優化：粒子減量計畫 ---
+            let count = 8;
+            if (mode === 'firework') count = 1;
+            else if (mode === 'sparkle') count = 10;
+            else if (mode === 'snow') count = 8;
+            else if (mode === 'bounce' || mode === 'pulse') count = 5;
+
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.textContent = icon;
+                p.className = 'particle';
+                p.style.fontSize = (15 + Math.random() * 15) + 'px';
+
+                if (mode === 'burst') {
+                    const angle = Math.random() * 360;
+                    const velocity = 60 + Math.random() * 120;
+                    const tx = Math.cos(angle * Math.PI / 180) * velocity + 'px';
+                    const ty = Math.sin(angle * Math.PI / 180) * velocity + 'px';
+                    const rot = (Math.random() * 360) + 'deg';
+
+                    p.style.left = '50%';
+                    p.style.top = '50%';
+                    p.style.setProperty('--tx', tx);
+                    p.style.setProperty('--ty', ty);
+                    p.style.setProperty('--rot', rot);
+                    p.style.animation = `burstOut 0.8s ease-out forwards`;
+                }
+                else if (mode === 'float') {
+                    p.style.left = (Math.random() * 100) + '%';
+                    p.style.bottom = '-30px';
+                    p.style.animation = `floatUp ${2.5 + Math.random()}s ease-in-out forwards`;
+                    p.style.animationDelay = Math.random() * 0.8 + 's';
+                }
+                else if (mode === 'rain') {
+                    p.style.left = (Math.random() * 120 - 10) + '%';
+                    p.style.top = '-40px';
+                    p.style.animation = `rainDown ${1.2 + Math.random()}s linear forwards`;
+                    p.style.animationDelay = Math.random() * 1.5 + 's';
+                }
+                else if (mode === 'spiral') {
+                    const angle = Math.random() * 360;
+                    const dist = 100 + Math.random() * 100;
+                    const tx = Math.cos(angle * Math.PI / 180) * dist + 'px';
+                    const ty = Math.sin(angle * Math.PI / 180) * dist + 'px';
+
+                    p.style.left = '50%';
+                    p.style.top = '50%';
+                    p.style.setProperty('--tx', tx);
+                    p.style.setProperty('--ty', ty);
+                    p.style.animation = `spiralIn 1.5s ease-out forwards`;
+                    p.style.animationDelay = Math.random() * 0.5 + 's';
+                }
+                else if (mode === 'firework') {
+                    p.style.left = '50%';
+                    p.style.bottom = '0';
+                    p.style.animation = `fireworkUp 1s ease-out forwards`;
+
+                    setTimeout(() => {
+                        createExplosion(container, icon);
+                        p.remove();
+                    }, 900);
+                }
+                else if (mode === 'sparkle') {
+                    const x = (Math.random() * 100) + '%';
+                    const y = (Math.random() * 100) + '%';
+                    p.style.left = x;
+                    p.style.top = y;
+                    p.style.animation = `sparkleAnim ${0.5 + Math.random()}s ease-in-out alternate infinite`;
+                    p.style.animationDelay = Math.random() * 2 + 's';
+                    setTimeout(() => p.remove(), 3000);
+                }
+                else if (mode === 'snow') {
+                    p.style.left = (Math.random() * 100) + '%';
+                    p.style.top = '-20px';
+                    p.style.setProperty('--sway', (Math.random() * 100 - 50) + 'px');
+                    p.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+                    p.style.animation = `snowFall ${6 + Math.random() * 6}s linear forwards`;
+                }
+                else if (mode === 'bounce') {
+                    p.style.left = (10 + Math.random() * 80) + '%';
+                    p.style.top = (10 + Math.random() * 80) + '%';
+                    p.style.animation = `bounceAnim 1s ease-in-out infinite`;
+                    p.style.animationDelay = Math.random() * 1 + 's';
+                }
+                else if (mode === 'pulse') {
+                    p.style.left = (10 + Math.random() * 80) + '%';
+                    p.style.top = (10 + Math.random() * 80) + '%';
+                    p.style.animation = `pulseHeart 1.5s ease-in-out infinite`;
+                    p.style.animationDelay = Math.random() * 1 + 's';
+                }
+
+                if (mode !== 'firework') container.appendChild(p);
+                else container.appendChild(p);
+            }
+
+            setTimeout(() => {
+                container.remove();
+            }, (mode === 'snow' ? 12000 : 4000));
+        }
+
+        function createExplosion(container, icon) {
+            const particleCount = 12; // 調降數量
+            for (let i = 0; i < particleCount; i++) {
+                const p = document.createElement('div');
+                p.textContent = icon;
+                p.className = 'particle';
+                p.style.fontSize = (10 + Math.random() * 10) + 'px';
+
+                p.style.left = '50%';
+                p.style.top = '20%';
+
+                const rad = Math.random() * Math.PI * 2;
+                const dist = 40 + Math.random() * 100;
+                const dx = Math.cos(rad) * dist + 'px';
+                const dy = Math.sin(rad) * dist + 'px';
+
+                p.style.setProperty('--ex', dx);
+                p.style.setProperty('--ey', dy);
+
+                p.style.animation = `explode 0.8s ease-out forwards`;
+                container.appendChild(p);
             }
         }
 
