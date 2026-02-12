@@ -107,17 +107,19 @@
         }
 
         header {
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            /* 移除可能干擾固定定位標誌的邊距 */
             z-index: 300;
-            /* 高於卡片牆 */
             position: relative;
         }
 
-        .header-content {
+        .header-bar {
+            position: fixed;
+            top: 50px;
+            /* 30px 跑馬燈 + 20px 緩衝 */
+            left: 1.5rem;
+            z-index: 2000;
             background: rgba(255, 255, 255, 0.4);
+            /* 使用質感更佳的 0.4 透明度 */
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             padding: 0.8rem 1.8rem;
@@ -127,60 +129,7 @@
             align-items: center;
             gap: 1.2rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        }
-
-        .header-bar {
-            position: fixed;
-            top: 1.5rem;
-            left: 1.5rem;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            padding: 0.7rem 1.6rem;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 192, 203, 0.4);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
             transition: all 0.3s ease;
-        }
-
-        .header-bar .logo-icon {
-            width: 44px;
-            height: 44px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-        }
-
-        .header-bar .header-title {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tagline-main {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #4a3e3e;
-            letter-spacing: 1px;
-        }
-
-        .tagline-sub {
-            font-size: 0.8rem;
-            color: #999;
-        }
-
-        .header-title {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
         }
 
         .logo-icon {
@@ -208,6 +157,66 @@
             font-size: 0.75rem;
             margin: 0;
             opacity: 0.6;
+        }
+
+        /* 頂部跑馬燈公告 - 極致純淨版 */
+        .ticker-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            /* 縮減高度至 30px，更纖細優雅 */
+            background: linear-gradient(90deg, rgba(230, 103, 103, 0.9) 0%, rgba(242, 121, 121, 0.85) 100%);
+            backdrop-filter: blur(15px);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            border: none;
+            /* 移除任何可能露出的邊線 */
+        }
+
+        .ticker-content {
+            display: flex;
+            white-space: nowrap;
+            padding-left: 100%;
+            /* 從右側最外緣開始進入 */
+            animation: marquee 40s linear infinite;
+            /* 預設更慢的速度 */
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .ticker-item {
+            padding: 0 30vw;
+            /* 極大間距，營造高端優雅的單則滾動感 */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ticker-item i {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .header-actions {
+            display: none;
         }
 
         .header-actions {
@@ -336,11 +345,26 @@
             background-size: 4px 4px;
         }
 
-        /* 行政釘選公告專用樣式 - 金金色系 */
+        /* 行政釘選公告專用樣式 - 輕量化與金金色系 */
         .message-card.pinned-card {
             background: #fffcf0;
             border: 2px solid #f1c40f;
-            box-shadow: 0 20px 60px rgba(241, 196, 15, 0.15);
+            box-shadow: 0 15px 45px rgba(241, 196, 15, 0.12);
+            width: 280px;
+            /* 寬度縮小 */
+            min-height: 140px;
+            /* 高度調降 */
+            padding-bottom: 1.5rem;
+            /* 底部稍微收緊 */
+            gap: 0.8rem;
+            /* 內部間距收緊 */
+        }
+
+        /* 公告內容字體強制縮小 */
+        .message-card.pinned-card .card-content {
+            --font-size: 0.95rem;
+            /* 預設使用較小字體 */
+            padding: 5px 0;
         }
 
         .message-card.pinned-card::before {
@@ -983,7 +1007,93 @@
             }
         }
 
-        /* 投稿專用模式 (Post-Only Mode) */
+        /* 公告管理編輯區 */
+        .ann-editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 1rem;
+        }
+
+        .ann-editor-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            background: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .ann-editor-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: var(--primary-coral);
+        }
+
+        .ann-editor-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .btn-sort {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            color: #666;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-sort:hover {
+            background: #e9ecef;
+            color: var(--primary-coral);
+        }
+
+        .ann-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            min-height: 80px;
+            resize: vertical;
+            line-height: 1.5;
+            transition: border-color 0.3s;
+        }
+
+        .ann-editor-item textarea {
+            flex: 1;
+            min-height: 40px;
+            resize: vertical;
+            padding: 8px;
+        }
+
+        .btn-add-ann {
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-add-ann:hover {
+            border-color: var(--primary-coral);
+            color: var(--primary-coral);
+            background: #fff5f2;
+        }
+
         body.post-only-mode #messageBoard,
         body.post-only-mode .fab-container,
         body.post-only-mode .admin-trigger {
@@ -998,10 +1108,15 @@
 </head>
 
 <body>
+    <div class="ticker-wrapper" id="announcementTicker" style="display: none;">
+        <div class="ticker-content" id="tickerContent">
+            <!-- 動態插入公告項目 -->
+        </div>
+    </div>
     <div class="ambient-glow"></div>
 
     <header>
-        <div class="header-content">
+        <div class="header-bar">
             <div class="logo-icon">🌸</div>
             <div class="logo-text">
                 <h1>建成心能量</h1>
@@ -1138,10 +1253,12 @@
                     <div class="admin-tabs">
                         <div class="tab-btn active" onclick="switchTab('待審核')">待審核</div>
                         <div class="tab-btn" onclick="switchTab('通過')">已通過</div>
+                        <div class="tab-btn" onclick="switchTab('跑馬燈管理')">跑馬燈管理</div>
                         <div class="tab-btn" onclick="switchTab('駁回')">已駁回</div>
                         <div class="tab-btn" onclick="switchTab('已下架')">已下架</div>
                     </div>
 
+                    <!-- 留言管理分頁 -->
                     <div id="tab-content-list" class="tab-pane">
                         <div class="batch-actions" id="batch-actions-bar">
                             <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"
@@ -1151,6 +1268,21 @@
                             <button class="btn-reject" onclick="batchUpdate('駁回')">批次駁回</button>
                         </div>
                         <ul id="admin-msg-list" class="admin-list"></ul>
+                    </div>
+
+                    <!-- 跑馬燈管理分頁 (NEW) -->
+                    <div id="admin-ann-panel" class="tab-pane" style="display: none;">
+                        <p style="font-size: 0.85rem; color: #888;">設定顯示在頂部的跑馬燈內容（支援多則）：</p>
+                        <div id="ann-list-editor" class="ann-editor-container">
+                            <!-- 由 JS 動態產生編輯框 -->
+                        </div>
+                        <div class="btn-add-ann" onclick="addAnnEditorRow()" style="margin-top: 1rem;">
+                            <i class="fas fa-plus"></i> 新增一則公告
+                        </div>
+                        <button class="btn-submit" onclick="saveAnnouncements()"
+                            style="margin-top: 1.5rem; width: 100%;">
+                            儲存並更新跑馬燈
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1206,10 +1338,12 @@
             }
 
             const url = getGasUrl();
-            // 只有在顯示模式或管理模式下，才載入留言
+            // 只有在顯示模式或管理模式下，才載入留言與公告
             if (url && (isDisplayMode || isAdminMode)) {
                 loadMessages();
+                loadAnnouncements(); // 載入跑馬燈公告
                 setInterval(loadMessages, 20000); // 每 20 秒更新一次資料庫
+                setInterval(loadAnnouncements, 45000); // 跑馬燈更新頻率稍低
             }
 
             // 電視牆穩定性：每 2 小時自動重新整理一次網頁，確保 code 更新與穩定
@@ -1332,7 +1466,7 @@
 
             try {
                 // 修正邏輯：判斷哪些行動應該使用 POST
-                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages');
+                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements');
 
                 const options = {
                     method: isPost ? 'POST' : 'GET',
@@ -1366,7 +1500,26 @@
             }
         }
 
-        // --- 核心功能：讀取留言 ---
+        // --- 核心功能：讀取公告跑馬燈 ---
+        let currentAnnouncements = [];
+        async function loadAnnouncements() {
+            const ticker = document.getElementById('announcementTicker');
+            const content = document.getElementById('tickerContent');
+            const res = await fetchAPI('getAnnouncements');
+
+            if (res && Array.isArray(res) && res.length > 0) {
+                currentAnnouncements = res;
+                content.innerHTML = '';
+                // 重複兩次以實現無縫滾動效果
+                const items = res.map(a => `<div class="ticker-item"><i class="fas fa-bullhorn"></i> ${a.content}</div>`).join('');
+                content.innerHTML = items + items; // 雙倍內容確保循環
+                ticker.style.display = 'flex';
+                // 根據公告長度動態調整動畫時間 (一則公告約 45s，對應卡片出現頻率，節奏更從容)
+                content.style.animationDuration = `${res.length * 45}s`;
+            } else {
+                ticker.style.display = 'none';
+            }
+        }
         async function loadMessages() {
             const board = document.getElementById('messageBoard');
             const result = await fetchAPI('getMessages');
@@ -1471,31 +1624,17 @@
 
             let finalX, finalY, finalRot;
 
-            if (isPinned) {
-                // 釘選公告：固定在左側「建成心能量」標題下方
-                // 統計目前畫面上已有的釘選卡片數量
-                const existingPinned = board.querySelectorAll('.pinned-card').length;
-
-                const margin = 24; // 與標題對齊
-                const startY = 100; // 標題下方的起始高度
-                const spacingY = 280; // 每张卡片的高度 + 間距
-
-                finalX = margin;
-                finalY = startY + (existingPinned * spacingY);
-                finalRot = -2; // 稍微傾斜更有質感
-            } else {
-                // 一般留言：使用網格位置
-                if (gridPositions.length === 0 || positionIndex >= gridPositions.length) {
-                    calculateGridPositions();
-                    positionIndex = 0;
-                }
-                const pos = gridPositions[positionIndex];
-                positionIndex++;
-
-                finalX = pos.x;
-                finalY = pos.y;
-                finalRot = pos.rot;
+            // 統一使用網格位置
+            if (gridPositions.length === 0 || positionIndex >= gridPositions.length) {
+                calculateGridPositions();
+                positionIndex = 0;
             }
+            const pos = gridPositions[positionIndex];
+            positionIndex++;
+
+            finalX = pos.x;
+            finalY = pos.y;
+            finalRot = pos.rot;
 
             // 安全限制：確保 left/top 不會讓卡片超出
             const safeX = Math.max(10, Math.min(finalX, bw - 350));
@@ -1528,7 +1667,7 @@
             else if (contentLen > 110) sizeClass = "size-mini"; // 內容超長時縮到最小
 
             card.innerHTML = `
-                <div class="card-greeting">${isPinned ? '📌 行政公告：' : '致：'}${msg.target}</div>
+                <div class="card-greeting">${isPinned ? '📌 ' : '致：'}${msg.target}</div>
                 <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${renderedContent}</div>
                 <div class="card-footer">
                     <div class="card-tag ${isPinned ? 'badge-pinned' : 'tag-' + msg.tag}">${isPinned ? '📌 重要公告' : msg.tag}</div>
@@ -1552,11 +1691,7 @@
             // 隨機動畫延遲
             card.style.animationDelay = `0s, ${Math.random() * 2}s`;
 
-
-            // 關鍵安全鎖：若為釘選公告，強制跳出移除邏輯，絕對不消失
-            if (isPinned) return;
-
-            // 一般留言：11 秒後啟動消失動畫
+            // 所有卡片均參與消失邏輯 (公告已由頂部跑馬燈取代)
             setTimeout(() => {
                 card.classList.add('fade-out');
                 setTimeout(() => {
@@ -1710,9 +1845,24 @@
                 b.classList.toggle('active', b.textContent === tab);
             });
 
+            // 切換面版
+            const msgPanel = document.getElementById('tab-content-list');
+            const annPanel = document.getElementById('admin-ann-panel');
+
+            if (tab === '跑馬燈管理') {
+                msgPanel.style.display = 'none';
+                annPanel.style.display = 'block';
+                renderAnnManagementUI();
+            } else {
+                msgPanel.style.display = 'block';
+                annPanel.style.display = 'none';
+                renderMessageManagementUI(tab);
+            }
+        }
+
+        function renderMessageManagementUI(tab) {
             const list = document.getElementById('admin-msg-list');
             list.innerHTML = '';
-            // 修正：所有分頁都支援批次管理
             document.getElementById('batch-actions-bar').style.display = 'flex';
 
             // 批次按鈕動態調整顏色 (如果是駁回或下架分頁，按鈕功能不變但顯示上更直覺)
@@ -1778,10 +1928,6 @@
                         </div>
                     </div>
                     <div class="admin-actions">
-                        <button class="btn-approve" style="background: ${m.isPinned ? '#f39c12' : '#95a5a6'}; min-width: 40px;"
-                            onclick="togglePin('${m.id}', ${!m.isPinned})" title="${m.isPinned ? '取消釘選' : '釘選為公告'}">
-                            <i class="fas fa-thumbtack"></i>
-                        </button>
                         ${(m.status !== '通過' || (isExpired && !m.isPinned)) ? `<button class="btn-approve" onclick="updateStatus('${m.id}', '通過')" title="重新上架">✓</button>` : ''}
                         ${m.status !== '駁回' ? `<button class="btn-reject" onclick="updateStatus('${m.id}', '駁回')">✗</button>` : ''}
                     </div>
@@ -1859,6 +2005,66 @@
                 loadAdminMessages();
                 loadMessages();
                 showModal('已更新', isPinned ? '已成功釘選為公告' : '已取消釘選', 'success');
+            }
+        }
+
+        // --- 跑馬燈管理編輯邏輯 ---
+        function renderAnnManagementUI() {
+            const container = document.getElementById('ann-list-editor');
+            container.innerHTML = '';
+
+            if (currentAnnouncements.length === 0) {
+                addAnnEditorRow(""); // 預設給一個空行
+            } else {
+                currentAnnouncements.forEach(ann => addAnnEditorRow(ann.content));
+            }
+        }
+
+        function addAnnEditorRow(content = "") {
+            const container = document.getElementById('ann-list-editor');
+            const div = document.createElement('div');
+            div.className = 'ann-editor-item';
+            div.innerHTML = `
+                <div class="ann-editor-controls">
+                    <button class="btn-sort" onclick="moveAnnRow(this, -1)" title="上移"><i class="fas fa-chevron-up"></i></button>
+                    <button class="btn-sort" onclick="moveAnnRow(this, 1)" title="下移"><i class="fas fa-chevron-down"></i></button>
+                </div>
+                <textarea class="ann-input" placeholder="請輸入公告內容...">${content}</textarea>
+                <button class="btn-reject" onclick="this.parentElement.remove()" style="padding: 10px 12px; height: auto;" title="刪除"><i class="fas fa-trash"></i></button>
+            `;
+            container.appendChild(div);
+        }
+
+        function moveAnnRow(btn, direction) {
+            const row = btn.closest('.ann-editor-item');
+            if (!row) return;
+
+            if (direction === -1) {
+                const prev = row.previousElementSibling;
+                if (prev) row.parentElement.insertBefore(row, prev);
+            } else {
+                const next = row.nextElementSibling;
+                if (next) row.parentElement.insertBefore(next, row);
+            }
+        }
+
+        async function saveAnnouncements() {
+            const inputs = document.querySelectorAll('.ann-input');
+            const announcements = Array.from(inputs)
+                .map(i => ({ content: i.value.trim() }))
+                .filter(a => a.content !== "");
+
+            const password = localStorage.getItem('admin_password');
+            Swal.fire({ title: '更新公告中...', didOpen: () => Swal.showLoading() });
+
+            const res = await fetchAPI('updateAnnouncements', { announcements, password });
+
+            if (res && res.status === "success") {
+                showModal('成功', '公告已同步至跑馬燈', 'success');
+                loadAnnouncements(); // 即時載入前台顯示
+            } else {
+                // 如果失敗且 fetchAPI 沒跳 Modal，這裡補一個關閉 loading 的動作
+                Swal.close();
             }
         }
 
