@@ -22,9 +22,9 @@
             /* 再次加深背景基準色 */
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.4);
-            --font-main: 'Outfit', 'Noto Sans TC', sans-serif;
-            --card-shadow: 0 15px 50px rgba(107, 79, 79, 0.18);
-            /* 提高陰影不透明度 */
+            --font-main: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Outfit', 'Noto Sans TC', sans-serif;
+            /* 效能優化：精簡陰影渲染負擔 */
+            --card-shadow: 0 8px 25px rgba(107, 79, 79, 0.12);
         }
 
 
@@ -36,7 +36,7 @@
         }
 
         body {
-            font-family: 'Outfit', 'Noto Sans TC', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Outfit', 'Noto Sans TC', 'Segoe UI Symbol', sans-serif;
             background: #fff5f2;
             color: #4a3e3e;
             margin: 0;
@@ -114,7 +114,7 @@
             will-change: transform, opacity;
             z-index: 10000;
             /* 高於一切 */
-            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', serif;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', serif;
         }
 
         /* 取消關鍵字高亮樣式
@@ -494,12 +494,15 @@
             flex-direction: column;
             gap: 1.2rem;
             will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             border: 1px solid #e8d5d5;
             /* 加入實體細邊框，確保在任何螢幕皆清晰 */
             z-index: 100;
             /* 高於按鈕區域 */
-            pointer-events: auto;
+            pointer-events: none;
         }
 
         /* 高品質和紙膠帶 - 整齊切邊 */
@@ -566,17 +569,59 @@
                 box-shadow: 0 0 0 10px rgba(241, 196, 15, 0);
             }
 
-            100% {
-                box-shadow: 0 0 0 0 rgba(241, 196, 15, 0);
-            }
+            100% {}
         }
 
-        .message-card:hover {
-            transform: translateY(-12px) rotate(var(--rot, 0deg)) scale(1.03) !important;
-            box-shadow: 0 30px 70px rgba(139, 90, 43, 0.12);
-            z-index: 400 !important;
-            /* 互動時絕對置頂 */
+        /* 手繪感郵戳裝飾 */
+        .card-stamp {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgba(186, 73, 73, 0.45);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(var(--stamp-rot, -5deg));
+            pointer-events: none;
+            user-select: none;
+            z-index: 5;
         }
+
+        .card-stamp::after {
+            content: '';
+            position: absolute;
+            width: 82%;
+            height: 82%;
+            border: 1px dashed rgba(186, 73, 73, 0.4);
+            border-radius: 50%;
+        }
+
+        .stamp-date {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: rgba(186, 73, 73, 0.65);
+            line-height: 1;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .stamp-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: rgba(186, 73, 73, 0.55);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+            max-width: 58px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+
 
         /* 標題整合於紙張中 */
         .card-greeting {
@@ -723,51 +768,6 @@
             color: #d4a373;
         }
 
-        /* 精緻按鈕 */
-        .card-like {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            background: #fff0f0;
-            /* 淺粉色背景 */
-            border: 1px solid #ffdada;
-            /* 粉色邊框 */
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #e74c3c;
-            /* 愛心必須是鮮紅色 */
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(242, 121, 121, 0.1);
-            z-index: 10;
-        }
-
-        .card-like:hover {
-            transform: scale(1.1);
-            background: #ffe5e5;
-        }
-
-        .card-like.liked {
-            background: #ffdada;
-            /* 按讚後顏色加深一點 */
-        }
-
-        .like-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff6b6b;
-            color: white;
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: 800;
-        }
-
         /* 懸浮按鈕原始位置 CSS 已由 .fab-container 接管 */
 
         .fab {
@@ -784,6 +784,20 @@
             cursor: pointer;
             box-shadow: 0 15px 35px rgba(242, 121, 121, 0.3);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .ticker-item {
+            white-space: nowrap;
+            padding: 0 4rem;
+            color: white;
+            font-weight: 500;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
 
         .btn-write-fab {
@@ -885,24 +899,24 @@
         @keyframes fadeIn {
             0% {
                 opacity: 0;
-                transform: rotate(var(--rot, 0deg)) translateY(20px) scale(0.95);
+                transform: rotate(var(--rot, 0deg)) translateY(20px) scale(0.95) translateZ(0);
             }
 
             100% {
                 opacity: 1;
-                transform: rotate(var(--rot, 0deg)) translateY(0) scale(1);
+                transform: rotate(var(--rot, 0deg)) translateY(0) scale(1) translateZ(0);
             }
         }
 
         @keyframes fadeOut {
             0% {
                 opacity: 1;
-                transform: rotate(var(--rot, 0deg));
+                transform: rotate(var(--rot, 0deg)) translateZ(0);
             }
 
             100% {
                 opacity: 0;
-                transform: rotate(var(--rot, 0deg)) translateY(-15px) scale(0.95);
+                transform: rotate(var(--rot, 0deg)) translateY(-15px) scale(0.95) translateZ(0);
             }
         }
 
@@ -1021,27 +1035,80 @@
         }
 
 
-        /* 管理者介面專屬 */
+        /* 管理者介面佈置優化 */
+        .admin-nav-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 1.2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(232, 153, 141, 0.2);
+        }
+
+        .admin-nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .admin-nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #b07d62;
+            font-weight: 700;
+            margin-left: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .admin-tabs {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 0.5rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            border-bottom: none;
+            padding-bottom: 0;
         }
 
         .tab-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             cursor: pointer;
-            border-radius: 4px;
-            border: 1px solid transparent;
-            font-weight: bold;
-            color: #636e72;
+            border-radius: 10px;
+            border: 1px solid rgba(232, 153, 141, 0.2);
+            font-weight: 600;
+            color: #8d7b70;
+            background: white;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn i {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .tab-btn:hover {
+            background: #fffcfb;
+            border-color: var(--primary-coral);
+            color: var(--primary-coral);
         }
 
         .tab-btn.active {
             background: var(--primary-coral);
             color: white;
+            border-color: var(--primary-coral);
+            box-shadow: 0 4px 12px rgba(231, 103, 103, 0.25);
+        }
+
+        .tab-btn.active i {
+            opacity: 1;
         }
 
 
@@ -1054,34 +1121,146 @@
         }
 
         .batch-actions {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
-            gap: 0.5rem;
+            gap: 0.8rem;
             align-items: center;
             flex-wrap: wrap;
-            background: rgba(232, 153, 141, 0.1);
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            background: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(232, 153, 141, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .batch-actions label {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #8d7b70;
+            cursor: pointer;
         }
 
         .admin-item {
             background: white;
-            margin-bottom: 0.8rem;
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid #eee;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            border-radius: 15px;
+            border: 1px solid #f0f0f0;
             display: flex;
             align-items: flex-start;
-            /* 改為頂端對齊，避免內容多時按鈕居中 */
-            gap: 1rem;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
+            gap: 1.2rem;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         .admin-item:hover {
-            background: #fefefe;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(232, 153, 141, 0.12);
+            border-color: rgba(232, 153, 141, 0.5);
+        }
+
+        .item-checkbox {
+            margin-top: 5px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-meta {
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-target {
+            color: var(--primary-coral);
+            font-weight: 700;
+        }
+
+        .item-content {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.5rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .admin-actions button {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-approve {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .admin-actions button:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        .item-meta span {
+            display: inline-block;
+        }
+
+        /* 寫留言標籤藥丸樣式 */
+        .tag-pills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.3rem;
+        }
+
+        .tag-pill {
+            padding: 6px 14px;
+            background: white;
+            border: 1.5px solid rgba(232, 153, 141, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #8d7b70;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .tag-pill:hover {
             border-color: var(--primary-coral);
+            color: var(--primary-coral);
+            background: rgba(232, 153, 141, 0.05);
+        }
+
+        .tag-pill.active {
+            background: var(--primary-coral);
+            color: white;
+            border-color: var(--primary-coral);
+            box-shadow: 0 4px 10px rgba(230, 103, 103, 0.2);
+            transform: translateY(-1px);
         }
 
         .admin-item .item-checkbox {
@@ -1345,7 +1524,10 @@
 
     <div id="messageBoard"></div>
 
-    <!-- 整合式功能球：QR + 寫留言 -->
+    <!-- 全螢幕特效畫布 (效能優化：Canvas 特效引擎) -->
+    <canvas id="effectCanvas"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10000; pointer-events: none;"></canvas>
+
     <!-- 整合式功能球：QR + 寫留言 -->
     <div class="fab-container">
         <!-- 常駐 QR Code (掃碼即用) -->
@@ -1359,12 +1541,8 @@
         </button>
     </div>
 
-    <!-- 右下角隱藏入口 -->
+    <!-- 右下角隱藏入口 (位於 adminModal 之前) -->
     <div class="admin-trigger" onclick="openAdminModal()"></div>
-
-
-    <!-- 隱藏的後端入口 -->
-    <!-- <div class="admin-trigger" onclick="openAdminModal()"></div> -->
 
     <!-- 留言 Modal -->
     <div id="postModal" class="modal-overlay" onclick="if(event.target === this) closeModal('postModal')">
@@ -1372,71 +1550,104 @@
             <span class="modal-close" onclick="closeModal('postModal')">&times;</span>
             <h2 style="color: var(--warm-coral); text-align: center; margin-bottom: 1.5rem;">
                 投稿溫暖</h2>
-            <form id="postForm">
-                <!-- 溫馨提醒 -->
+            <form id="postForm" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <!-- 投稿提醒 (最上方) -->
                 <div
-                    style="background: linear-gradient(135deg, #fff9e6 0%, #fff0f5 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid var(--warm-coral);">
+                    style="background: linear-gradient(135deg, #fff9e6 0%, #fff0f5 100%); padding: 0.8rem 1rem; border-radius: 12px; border-left: 4px solid var(--warm-coral); margin-bottom: 0.2rem;">
                     <p style="font-size: 0.85rem; color: var(--warm-brown); margin: 0; line-height: 1.6;">
-                        💝 <strong>投稿小提醒</strong><br>
+                        💝 <strong>投稿前請注意：</strong><br>
                         • 請用正向、溫暖的文字傳遞心意<br>
-                        • 留言將經老師審核後公開顯示<br>
-                        • 請使用學校帳號登入，系統會記錄帳號，請愛護校園友善環境
+                        • 留言將經輔導室老師審核後公開顯示，兩週後自動下架<br>
+                        • 請使用個人學校帳號登入留言，請愛護校園友善環境
                     </p>
                 </div>
 
-                <label>對誰說話？</label>
-                <input type="text" id="target" placeholder="例如：701 全體同學、王老師..." required>
+                <!-- 1. 身分與顯示設定區塊 (並排優化) -->
+                <div id="identity-section"
+                    style="background: #fff; padding: 0.8rem; border-radius: 12px; border: 1px solid #eee; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
 
-                <label>標籤</label>
-                <select id="tag">
-                    <option value="鼓勵">💪 鼓勵</option>
-                    <option value="讚美">✨ 讚美</option>
-                    <option value="關心">🫂 關心</option>
-                    <option value="感謝">🍂 感謝</option>
-                    <option value="祝福">🎈 祝福</option>
-                </select>
-
-                <label>留言內容</label>
-                <div style="position: relative;">
-                    <textarea id="content" rows="4" placeholder="寫下你的心意 (60字以內)..." required maxlength="60"
-                        oninput="updateCharCount()"></textarea>
-                    <div id="charCount"
-                        style="position: absolute; bottom: 10px; right: 10px; font-size: 0.75rem; color: #999; pointer-events: none;">
-                        0 / 60</div>
-                </div>
-
-                <div
-                    style="display: flex; align-items: center; gap: 0.8rem; margin-top: 0.5rem; background: rgba(139, 90, 43, 0.04); padding: 0.8rem; border-radius: 10px; border: 1px dashed rgba(139, 90, 43, 0.1);">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;">
-                        <input type="checkbox" id="isAnonymous" style="width: 18px; height: 18px; cursor: pointer;"
-                            onchange="toggleAnonymousName()">
-                        <label for="isAnonymous" style="margin: 0; font-weight: 600; cursor: pointer;">匿名留言</label>
+                    <!-- Google 登入 (左側) -->
+                    <div id="google-login-container" style="position: relative; z-index: 1002; flex: 0 0 auto;">
+                        <div id="g_id_onload"
+                            data-client_id="236765538215-6o3ol1tl1brqhbd2qfavomq38l7j17aq.apps.googleusercontent.com"
+                            data-context="signin" data-ux_mode="popup" data-callback="handleCredentialResponse"
+                            data-auto_prompt="false" style="z-index: 2000;">
+                        </div>
+                        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
+                            data-text="signin_with" data-size="large" style="z-index: 2000;">
+                        </div>
                     </div>
-                    <div id="anonymousNameWrapper" style="display: none; flex: 1; min-width: 0;">
-                        <input type="text" id="anonymousName"
-                            style="width: 100%; padding: 6px 12px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 6px; background: white;"
-                            placeholder="自訂暱稱 (預設: 小天使)" maxlength="10">
-                    </div>
-                </div>
 
-
-                <div id="google-login-container"
-                    style="margin-top: 1rem; text-align: center; position: relative; z-index: 1002;">
-                    <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: #666;">* 系統將記錄您的 Google 帳號以利維護環境秩序</p>
-                    <!-- Google Login Button Placeholder -->
-                    <div id="g_id_onload"
-                        data-client_id="236765538215-6o3ol1tl1brqhbd2qfavomq38l7j17aq.apps.googleusercontent.com"
-                        data-context="signin" data-ux_mode="popup" data-callback="handleCredentialResponse"
-                        data-auto_prompt="false" style="z-index: 2000;">
-                    </div>
-                    <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
-                        data-text="signin_with" data-size="large" style="z-index: 2000;">
+                    <!-- 自訂顯示名稱 (右側) -->
+                    <div id="custom-name-container"
+                        style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 0.5rem; background: rgba(139, 90, 43, 0.04); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px dashed rgba(139, 90, 43, 0.1);">
+                        <div id="isAnonymous-wrapper"
+                            style="display: flex; align-items: center; gap: 0.3rem; white-space: nowrap;">
+                            <input type="checkbox" id="isAnonymous" style="width: 16px; height: 16px; cursor: pointer;"
+                                onchange="toggleAnonymousName()">
+                            <label for="isAnonymous"
+                                style="margin: 0; font-weight: 600; cursor: pointer; font-size: 0.85rem;">自訂名稱</label>
+                        </div>
+                        <div id="anonymousNameRow" style="flex: 1; display: flex; flex-direction: column; gap: 0.3rem;">
+                            <label id="anonymousNameLabel"
+                                style="display: none; font-weight: bold; color: var(--warm-brown);">您的稱呼</label>
+                            <div id="anonymousNameWrapper" style="display: none; flex: 1; min-width: 0;">
+                                <input type="text" id="anonymousName" placeholder="您的稱呼 (選填)" maxlength="10">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <button type="button" class="btn-submit" onclick="submitDraft()">送出留言 (請先登入)</button>
+
+
+                <!-- 2. 留言內容區塊 -->
+                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <!-- 對誰說話 -->
+                    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <label style="font-weight: bold; color: var(--warm-brown);">對誰說話？</label>
+                        <input type="text" id="target" placeholder="例如：701 全體同學、王老師..." required>
+                    </div>
+
+                    <!-- 類別與標籤 (橫向並排) -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;">
+                        <div style="flex: 0 0 140px; display: flex; flex-direction: column; gap: 0.3rem;">
+                            <label style="font-weight: bold; color: var(--warm-brown);">類別</label>
+                            <select id="tag">
+                                <option value="鼓勵">💪 鼓勵</option>
+                                <option value="讚美">✨ 讚美</option>
+                                <option value="關心">🫂 關心</option>
+                                <option value="感謝">🍂 感謝</option>
+                                <option value="祝福">🎈 祝福</option>
+                            </select>
+                        </div>
+
+                        <div id="topic-tag-wrapper"
+                            style="display: none; flex: 1; min-width: 200px; flex-direction: column; gap: 0.3rem;">
+                            <label style="font-weight: bold; color: var(--warm-brown);">選擇活動標籤</label>
+                            <div id="topic-pills-container" class="tag-pills-container">
+                                <!-- 由 JS 動態產生 -->
+                            </div>
+                            <input type="hidden" id="topicTag" value="">
+                        </div>
+                    </div>
+
+                    <!-- 留言內容 -->
+                    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <label style="font-weight: bold; color: var(--warm-brown);">留言內容</label>
+                        <div style="position: relative;">
+                            <textarea id="content" rows="4" placeholder="寫下你的心意 (60字以內)..." required maxlength="60"
+                                oninput="updateCharCount()"></textarea>
+                            <div id="charCount"
+                                style="position: absolute; bottom: 10px; right: 10px; font-size: 0.75rem; color: #999; pointer-events: none;">
+                                0 / 60</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-submit" id="submitBtn" onclick="submitDraft()"
+                    style="margin-top: 0.5rem; height: 48px; font-size: 1.1rem; width: 100%;">
+                    送出留言
+                </button>
             </form>
-
         </div>
     </div>
 
@@ -1457,7 +1668,7 @@
 
 
             <div id="admin-management-ui" style="margin-top: 2rem;">
-                <h3 style="font-size: 1rem; margin-bottom: 1rem; color: #b07d62;">留言內容管理</h3>
+
 
                 <div id="admin-login-ui">
                     <p style="font-size: 0.85rem; color: #8d7b70; margin-bottom: 10px;">請輸入密碼解鎖管理員權限</p>
@@ -1468,14 +1679,23 @@
                 </div>
 
                 <div id="admin-panel" style="display:none; margin-top: 1rem;">
-                    <div class="admin-tabs">
-                        <div class="tab-btn active" onclick="switchTab('待審核')">待審核</div>
-                        <div class="tab-btn" onclick="switchTab('通過')">已通過</div>
-                        <div class="tab-btn" onclick="switchTab('跑馬燈管理')">跑馬燈管理</div>
-                        <div class="tab-btn" onclick="switchTab('駁回')">已駁回</div>
-                        <div class="tab-btn" onclick="switchTab('已下架')">已下架</div>
-                        <div class="tab-btn" onclick="switchTab('特效設定')">特效設定</div>
-                        <div class="tab-btn" onclick="switchTab('系統設定')">系統設定</div>
+                    <div class="admin-nav-container"
+                        style="padding: 0.6rem; margin-bottom: 1.2rem; background: transparent; border: none;">
+                        <div class="admin-tabs"
+                            style="justify-content: flex-start; gap: 0.4rem; overflow-x: auto; padding-bottom: 5px;">
+                            <div class="tab-btn active" onclick="switchTab('待審核')"><i class="fas fa-clock"></i> 待審核
+                            </div>
+                            <div class="tab-btn" onclick="switchTab('通過')"><i class="fas fa-check-circle"></i> 通過</div>
+                            <div class="tab-btn" onclick="switchTab('駁回')"><i class="fas fa-times-circle"></i> 駁回</div>
+                            <div class="tab-btn" onclick="switchTab('已下架')"><i class="fas fa-archive"></i> 下架</div>
+                            <div
+                                style="width: 1px; height: 20px; background: rgba(0,0,0,0.1); margin: 0 4px; align-self: center;">
+                            </div>
+                            <div class="tab-btn" onclick="switchTab('跑馬燈管理')"><i class="fas fa-bullhorn"></i> 跑馬燈</div>
+                            <div class="tab-btn" onclick="switchTab('標籤管理')"><i class="fas fa-tags"></i> 標籤</div>
+                            <div class="tab-btn" onclick="switchTab('特效設定')"><i class="fas fa-magic"></i> 特效</div>
+                            <div class="tab-btn" onclick="switchTab('系統設定')"><i class="fas fa-tools"></i> 設定</div>
+                        </div>
                     </div>
 
                     <!-- 留言管理分頁 -->
@@ -1549,16 +1769,63 @@
                         </button>
                     </div>
 
+                    <!-- 標籤管理分頁 (REFINED) -->
+                    <div id="admin-topic-panel" class="tab-pane" style="display: none;">
+                        <h4 style="margin: 0 0 10px 0; color: #b07d62; font-size: 0.95rem;">標籤管理</h4>
+                        <p style="font-size: 0.85rem; color: #888;">
+                            在這裡管理留言掛載的標籤。您可以設定標籤庫，並勾選目前要在投稿或電視牆顯示的項目。
+                        </p>
+
+                        <!-- 新增標籤 -->
+                        <div
+                            style="background: #fff5f2; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #b07d62;">
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="new-topic-tag-input" placeholder="新標籤 (例如：#學校日)"
+                                    class="ann-input" style="min-height: 40px; flex: 1;">
+                                <button class="btn-approve" onclick="addTopicToLibrary()"
+                                    style="padding: 0 20px;">新增標籤</button>
+                            </div>
+                        </div>
+
+                        <!-- 標籤列表 -->
+                        <div id="topic-list-container" class="ann-editor-container"
+                            style="max-height: 400px; overflow-y: auto;">
+                            <!-- JS 動態產生標籤列 -->
+                        </div>
+
+                        <button class="btn-submit" onclick="saveTopicConfig()" style="margin-top: 1.5rem; width: 100%;">
+                            儲存標籤設定
+                        </button>
+                    </div>
+
                     <!-- 系統設定 -->
                     <div id="admin-settings-panel" class="tab-pane" style="display: none;">
-                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--warm-brown);">系統設定</h4>
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                            <input type="checkbox" id="toggleInternalTest" style="width: 20px; height: 20px;"
-                                onchange="toggleSystemConfig('isInternalTest', this.checked)">
-                            <label for="toggleInternalTest" style="font-weight: 600; color: #555;">啟用內部測試模式</label>
-                            <span style="font-size: 0.8rem; color: #888;">(啟用後，電視牆將隱藏投稿按鈕並顯示提示)</span>
+                        <h4 style="margin: 0 0 10px 0; color: #b07d62; font-size: 0.95rem;">系統設定</h4>
+                        <div class="admin-nav-container">
+                            <div class="admin-nav-group">
+                                <label class="admin-nav-title"><i class="fas fa-user-shield"></i> 投稿權限控管</label>
+                                <select id="submissionModeSelect" class="tab-btn"
+                                    style="width: 100%; height: 42px; background: white; border: 1px solid #ddd; padding: 0 10px;">
+                                    <option value="school">🏫 學校帳號 (需要登入)</option>
+                                    <option value="public">🌍 完全開放 (訪客免登入)</option>
+                                    <option value="closed">🔒 暫停投稿 (僅供瀏覽)</option>
+                                </select>
+                                <p style="font-size: 0.8rem; color: #999; margin: 5px 0 0 5px;">* 活動期間可開啟完全開放，讓外賓也能傳遞溫暖。
+                                </p>
+                            </div>
+
+                            <div class="admin-nav-group" style="margin-top: 15px;">
+                                <label class="admin-nav-title"><i class="fas fa-desktop"></i> 電視牆模式</label>
+                                <label
+                                    style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px; background: white; border-radius: 12px; border: 1px solid #eee;">
+                                    <input type="checkbox" id="toggleInternalTest" style="width: 18px; height: 18px;">
+                                    <span style="font-weight: 600; color: #555;">啟用內部測試模式 (隱藏互動按鈕)</span>
+                                </label>
+                            </div>
                         </div>
-                        <button class="btn-submit" onclick="saveSystemConfig()" style="margin-top: 1rem; width: 100%;">
+
+                        <button class="btn-submit" onclick="saveSystemConfig()"
+                            style="margin-top: 1.5rem; width: 100%;">
                             儲存系統設定
                         </button>
                     </div>
@@ -1581,10 +1848,12 @@
         let currentUserEmail = null;
         let currentUserName = null;
         let allMessages = [];
-        let usedIndexes = new Set(); // 用於追蹤已顯示的留言索引
-        let likedMessages = JSON.parse(localStorage.getItem('liked_messages') || '[]'); // 已按讚的留言 ID
+        let pendingSequence = []; // 待顯示隨機序列
         let isInternalTest = false; // 內部測試模式狀態
         let currentEffects = []; // 儲存特效規則
+        let topicConfig = { library: "", activeSubmissionTags: "", defaultWallTags: "" }; // 活動標籤設定
+        let currentFilterTag = ""; // 當前過濾標籤
+        let currentSubmissionMode = "school"; // 當前投稿模式 (school, public, closed)
         // 敏感詞清單（可自行擴充）
         const SENSITIVE_WORDS = [
             '笨蛋', '白癡', '去死', '智障', '廢物', '垃圾', '滾', '爛',
@@ -1606,6 +1875,9 @@
 
 
         // --- 初始化頁面 ---
+        // 全域輪播計時器，確保手動與自動輪播同步，避免同時出卡
+        let lastRotateTimestamp = 0;
+
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const isDisplayMode = urlParams.has('view') && urlParams.get('view') === 'wall';
@@ -1617,24 +1889,42 @@
             }
 
             const url = getGasUrl();
+            // 載入標籤設定
+            if (url) loadTopicConfig();
+            if (url) checkSystemConfig();
+
             // 只有在顯示模式或管理模式下，才載入留言與公告
             if (url && (isDisplayMode || isAdminMode)) {
-                loadMessages();
-                loadAnnouncements(); // 載入跑馬燈公告
-                checkSystemConfig(); // 檢查系統設定（測試模式）
-                loadKeywordEffects(); // 載入特效規則設定
+                loadAnnouncements();
+                loadKeywordEffects();
 
-                setInterval(loadMessages, 20000); // 每 20 秒更新一次資料庫
-                setInterval(loadAnnouncements, 45000); // 跑馬燈更新頻率稍低
-                setInterval(checkSystemConfig, 60000); // 每分鐘檢查一次系統狀態
+                // 檢查 URL 參數中的標籤過濾 (回復標準解析)
+                currentFilterTag = urlParams.get('tag') || "";
+
+                // loadMessages 移除 setTimeout，改由相依資料載入後觸發
+                loadMessages(); // 立即載入，不等待 setInterval
+                setInterval(loadMessages, 20000);
+                setInterval(loadAnnouncements, 45000);
+                setInterval(checkSystemConfig, 60000);
+
+                // 使用 rAF 驅動的卡片輪播 (避免 setInterval 的阻塞感)
+                const rotateLoop = (time) => {
+                    // 全域控制：lastRotateTimestamp 會被 rotateMessages 同步更新
+                    if (time - lastRotateTimestamp >= 4000) {
+                        rotateMessages();
+                        // 這裡不需要手動 set，因為 rotateMessages 內部會更新，確保所有呼叫來源都能重置計時
+                    }
+                    requestAnimationFrame(rotateLoop);
+                };
+                requestAnimationFrame(rotateLoop);
+
+                // 電視牆穩定性：每 30 分鐘自動重新整理一次網頁，確保 code 更新能及時生效並釋放記憶體
+                if (isDisplayMode) {
+                    setInterval(() => location.reload(), 1800000);
+                }
             }
 
-            // 電視牆穩定性：每 30 分鐘自動重新整理一次網頁，確保 code 更新能及時生效並釋放記憶體
-            if (isDisplayMode) {
-                setInterval(() => location.reload(), 1800000);
-            }
-
-            // 預生成分享用的寫留言 QR Code (指向預設模式)
+            // 預生成分享用的寫留言 QR Code
             generateWriteQrCode();
 
             // 關鍵功能：投稿偵測（預設模式也會自動開啟）
@@ -1646,25 +1936,15 @@
             if (urlParams.has('admin')) {
                 setTimeout(openAdminModal, 500);
             }
-
-            setInterval(rotateMessages, 2000);
         };
 
-        // --- 生成寫留言專用 QR Code ---
+        // --- 生成寫留言專用 QR Code (優化：使用靜態 Vercel 網址) ---
         function generateWriteQrCode() {
             const qrImg = document.getElementById('fabQrImg');
             if (!qrImg) return;
-
-            // 取得目前頁面網址（不含參數）
-            let currentUrl = window.location.origin + window.location.pathname;
-            if (window.location.protocol === 'file:') {
-                currentUrl = window.location.href.split('?')[0];
-            }
-
-            // 生成寫留言分享連結 (不再需要 config 參數)
-            const fullShareUrl = `${currentUrl}?write=true`;
+            const fullShareUrl = "https://jcjh.vercel.app/jcjh-heart.html?write=true";
             qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(fullShareUrl)}&size=200&margin=1&dark=c23a3a&light=ffffff`;
-            console.log("已生成寫留言專用分享連結");
+            console.log("已生成寫留言專用靜態 QR Code");
         }
 
 
@@ -1706,8 +1986,9 @@
         // --- 核心功能：檢查系統設定 (測試模式) ---
         async function checkSystemConfig() {
             const config = await fetchAPI('getSystemConfig');
-            if (config && typeof config.isInternalTest !== 'undefined') {
-                isInternalTest = config.isInternalTest;
+            if (config) {
+                if (typeof config.isInternalTest !== 'undefined') isInternalTest = config.isInternalTest;
+                if (typeof config.submissionMode !== 'undefined') currentSubmissionMode = config.submissionMode;
                 applySystemConfig();
             }
         }
@@ -1731,42 +2012,6 @@
                 }
             }
         }
-        // --- 愛心按讚 ---
-        async function toggleLike(msgId, btn) {
-            const isLiked = likedMessages.includes(msgId);
-            const increment = isLiked ? -1 : 1;
-
-            // 更新本地狀態
-            if (isLiked) {
-                likedMessages = likedMessages.filter(id => id !== msgId);
-                btn.classList.remove('liked');
-            } else {
-                likedMessages.push(msgId);
-                btn.classList.add('liked');
-            }
-
-            localStorage.setItem('liked_messages', JSON.stringify(likedMessages));
-
-            // 更新 UI 上的計數 (更穩健的選取方式)
-            let countEl = btn.querySelector('.like-count');
-            if (!countEl) {
-                // 如果原本沒有計數標籤，動態創建一個
-                countEl = document.createElement('span');
-                countEl.className = 'like-count';
-                btn.appendChild(countEl);
-            }
-
-            let count = parseInt(countEl.textContent) || 0;
-            count = Math.max(0, count + increment);
-            countEl.textContent = count > 0 ? count : '';
-
-            // 同步到後端
-            await fetchAPI('toggleLike', null, { id: msgId, increment: increment });
-        }
-
-
-
-
         // --- API 串接 ---
         async function fetchAPI(action, data = null, params = null) {
             const url = getGasUrl();
@@ -1777,7 +2022,7 @@
 
             try {
                 // 修正邏輯：判斷哪些行動應該使用 POST
-                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements' || action === 'updateSystemConfig' || action === 'updateKeywordEffects');
+                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements' || action === 'updateSystemConfig' || action === 'updateKeywordEffects' || action === 'updateTopicConfig' || action === 'updateMessage' || action === 'renameTopicTag');
 
                 const options = {
                     method: isPost ? 'POST' : 'GET',
@@ -1836,10 +2081,31 @@
             const result = await fetchAPI('getMessages');
             if (result && !result.error) {
                 allMessages = result;
+
+                // 標籤過濾邏輯
+                let filterToUse = currentFilterTag || (topicConfig.defaultWallTags ? topicConfig.defaultWallTags.split(',').map(t => t.trim()) : []);
+                if (typeof filterToUse === 'string') filterToUse = [filterToUse];
+                filterToUse = filterToUse.filter(t => t);
+
+                if (filterToUse.length > 0) {
+                    allMessages = allMessages.filter(m => {
+                        const mTag = m.topicTag ? m.topicTag.trim() : "";
+                        return filterToUse.some(f => mTag === f.trim());
+                    });
+                }
+
+                if (pendingSequence.length === 0 && allMessages.length > 0) {
+                    refreshSequence();
+                }
                 if (allMessages.length === 0) {
                     board.innerHTML = '<div style="opacity:0.5;">目前還沒有溫暖的留言，快來寫第一則吧！</div>';
                 } else if (board.innerHTML.includes('目前還沒有')) {
                     board.innerHTML = '';
+                }
+
+                // 若剛載入且畫面全空，立即觸發第一張，避免等待
+                if (board.querySelectorAll('.message-card').length === 0) {
+                    rotateMessages();
                 }
                 // 不再執行 board.innerHTML = ''，讓 rotateMessages 自然更迭留言
             }
@@ -1848,7 +2114,46 @@
         // --- 核心功能：隨機旋轉留言卡片 ---
         let displayingIndexes = new Set(); // 追蹤當前正在畫面上的卡片
 
+        // --- 隨機序列管理工具 ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function refreshSequence() {
+            if (allMessages.length === 0) return;
+            pendingSequence = shuffleArray([...Array(allMessages.length).keys()]);
+            console.log("隨機序列已重置", pendingSequence.length);
+        }
+
+        function getNextMessageIndex() {
+            if (allMessages.length === 0) return undefined;
+            if (pendingSequence.length === 0) refreshSequence();
+
+            for (let i = pendingSequence.length - 1; i >= 0; i--) {
+                const idx = pendingSequence[i];
+                if (idx >= allMessages.length) {
+                    pendingSequence.splice(i, 1);
+                    continue;
+                }
+                if (!displayingIndexes.has(idx)) {
+                    return pendingSequence.splice(i, 1)[0];
+                }
+            }
+            return undefined;
+        }
+
         function rotateMessages() {
+            // 強制檢查時間間隔，防止多重觸發來源導致卡片連發
+            const now = performance.now();
+            // 如果距離上次出卡不到 3.5 秒 (預留緩衝)，則本次跳過
+            if (now - lastRotateTimestamp < 3500) return;
+
+            lastRotateTimestamp = now;
+
             if (allMessages.length === 0) return;
 
             const board = document.getElementById('messageBoard');
@@ -1856,61 +2161,69 @@
             const boardWidth = board.clientWidth;
             const boardHeight = board.clientHeight;
 
-            // 調整共存卡片數量
-            const maxOnScreen = Math.min(window.innerWidth < 600 ? 3 : 6, allMessages.length);
-            const currentCards = board.querySelectorAll('.message-card');
+            // 根據設備能力調整共存卡片數量 (恢復電腦版豐盛感)
+            const isMobile = window.innerWidth < 600;
+            const targetCount = isMobile ? 3 : 6;
+            const maxOnScreen = Math.min(targetCount, allMessages.length);
 
-            if (currentCards.length < maxOnScreen) {
-                // 獲取不在畫面上的可用留言索引
-                let availableIndexes = [];
-                for (let i = 0; i < allMessages.length; i++) {
-                    if (!displayingIndexes.has(i)) {
-                        availableIndexes.push(i);
-                    }
+            // 每次檢查時：
+            // 只嘗試補 1 張卡片 (配合 4秒週期 + 卡片消失後的主動觸發)
+            // 達成錯落感：時間到補一張，有人走也補一張
+            let currentCount = board.querySelectorAll('.message-card').length;
+
+            if (currentCount < maxOnScreen) {
+                const randomPick = getNextMessageIndex();
+                if (randomPick !== undefined) {
+                    displayingIndexes.add(randomPick);
+                    createCard(allMessages[randomPick], boardWidth, boardHeight, randomPick);
                 }
-
-                if (availableIndexes.length === 0) return;
-
-                const randomPick = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-                displayingIndexes.add(randomPick);
-                createCard(allMessages[randomPick], boardWidth, boardHeight, randomPick);
             }
         }
 
         // 預計算位置（更自然的散佈）
+        // 預計算位置（使用最佳適配演算法）
         let gridPositions = [];
-        let positionIndex = 0;
+
+        // 視窗大小改變時，重置網格以重新計算最佳位置
+        window.addEventListener('resize', () => {
+            gridPositions = [];
+        });
 
         function calculateGridPositions() {
             gridPositions = [];
             const bw = window.innerWidth;
             const bh = window.innerHeight;
             const cardW = 340;
-            const cardH = 260; // 稍微增加預估高度
+            const cardH = 260;
 
-            // 設定邊界安全範圍 (避免貼邊或超出)
-            const margin = 30;
-            const availableW = bw - (margin * 2);
-            const availableH = bh - (margin * 2); // 移除下方預留空間，允許卡片覆蓋按鈕
+            const marginT = 100;
+            const marginB = 50;  // 縮小底部邊距，允許卡片延伸到下方 (原 140)
+            const marginLR = 50;
 
-            const cols = Math.max(1, Math.floor(availableW / (cardW + 20)));
-            const rows = Math.max(1, Math.floor(availableH / (cardH + 20)));
+            const availableW = bw - marginLR * 2;
+            const availableH = bh - marginT - marginB;
 
-            const gapX = cols > 1 ? (availableW - cols * cardW) / (cols - 1) : 0;
-            const gapY = rows > 1 ? (availableH - rows * cardH) / (rows - 1) : 0;
+            // 增加網格密度，提供更多候選位置 (4x3 -> 5x4)
+            // 這裡的間距 (20) 設得較小，是為了產生更多交錯的候選點
+            const cols = Math.max(3, Math.floor(availableW / (cardW + 20)));
+            const rows = Math.max(3, Math.floor(availableH / (cardH + 20)));
+
+            const cellW = availableW / cols;
+            const cellH = availableH / rows;
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
-                    const startX = (bw - (cols * cardW + (cols - 1) * gapX)) / 2;
-                    const startY = margin + 40;
+                    const offsetX = (cellW - cardW) / 2 + (Math.random() - 0.5) * (cellW * 0.4);
+                    const offsetY = (cellH - cardH) / 2 + (Math.random() - 0.5) * (cellH * 0.4);
 
                     gridPositions.push({
-                        x: startX + c * (cardW + gapX) + (Math.random() - 0.5) * 30,
-                        y: startY + r * (cardH + gapY) + (Math.random() - 0.5) * 30,
-                        rot: (Math.random() - 0.5) * 8
+                        x: marginLR + c * cellW + offsetX,
+                        y: marginT + r * cellH + offsetY,
+                        rot: (Math.random() - 0.5) * 12
                     });
                 }
             }
+            // 隨機打亂候選池
             gridPositions.sort(() => Math.random() - 0.5);
         }
 
@@ -1920,32 +2233,66 @@
             const card = document.createElement('div');
             card.className = `message-card animate-float`;
 
-            let finalX, finalY, finalRot;
+            // 1. 取得畫面上所有現存卡片的位置 (Collision Detection)
+            const existingCards = Array.from(board.querySelectorAll('.message-card')).map(el => {
+                const rect = el.getBoundingClientRect();
+                // 取卡片中心點作為距離計算基準，比左上角更準確
+                return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+            });
 
-            // 統一使用網格位置
-            if (gridPositions.length === 0 || positionIndex >= gridPositions.length) {
-                calculateGridPositions();
-                positionIndex = 0;
+            // 2. 確保候選網格已生成
+            if (gridPositions.length === 0) calculateGridPositions();
+
+            // 3. 尋找最佳位置：挑選「離所有現有卡片最遠」的候選點
+            let bestPos = gridPositions[0];
+            let maxMinDist = -1;
+
+            // 隨機選取 10 個候選點進行評估 (避免計算量過大，雖只有幾十個點其實全跑也沒關係)
+            // 為了效能與隨機性，我們遍歷所有候選點，因為數量不多 (約 20-30 個)
+            for (const pos of gridPositions) {
+                // 計算此候選點(中心)與所有現存卡片(中心)的最近距離
+                // 預估卡片中心 x = pos.x + 170, y = pos.y + 130
+                const centerX = pos.x + 170;
+                const centerY = pos.y + 130;
+
+                let minDist = Infinity;
+
+                if (existingCards.length === 0) {
+                    minDist = Infinity;
+                } else {
+                    for (const exist of existingCards) {
+                        const dx = centerX - exist.x;
+                        const dy = centerY - exist.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < minDist) minDist = dist;
+                    }
+                }
+
+                // 更新最佳解
+                if (minDist > maxMinDist) {
+                    maxMinDist = minDist;
+                    bestPos = pos;
+                }
             }
-            const pos = gridPositions[positionIndex];
-            positionIndex++;
 
-            finalX = pos.x;
-            finalY = pos.y;
-            finalRot = pos.rot;
+            // 使用評估出的最佳位置 (如果 maxMinDist 仍很小，表示螢幕真的很滿，但也盡力選了最空的)
 
-            // 安全限制：確保 left/top 不會讓卡片超出
-            const safeX = Math.max(10, Math.min(finalX, bw - 350));
-            const safeY = Math.max(50, Math.min(finalY, bh - 280));
+            // 安全限制：確保卡片完全在可見範圍內 (預留邊距)
+            const safeX = Math.max(30, Math.min(bestPos.x, bw - 380));
+            const safeY = Math.max(80, Math.min(bestPos.y, bh - 320));
 
-            card.style.setProperty('--rot', `${finalRot}deg`);
+            card.style.setProperty('--rot', `${bestPos.rot}deg`);
             card.style.top = `${safeY}px`;
             card.style.left = `${safeX}px`;
 
-            // 檢查是否已按讚
-            const isLiked = likedMessages.includes(msg.id);
-            const heartIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
-            const likedClass = isLiked ? 'liked' : '';
+            // --- 郵戳日期處理 (使用原始投稿時間) ---
+            const dateObj = new Date(msg.timestamp);
+            const stampMonth = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const stampDay = dateObj.getDate().toString().padStart(2, '0');
+            const stampRot = (Math.random() * 20 - 10); // 隨機蓋章偏轉
+            card.style.setProperty('--stamp-rot', `${stampRot}deg`);
+
+
 
             // 隨機膠帶位置邏輯
             const tapePos = Math.random() > 0.5 ? '20px' : '230px';
@@ -1964,15 +2311,13 @@
             else if (contentLen < 65) sizeClass = "size-medium";
             else if (contentLen > 110) sizeClass = "size-mini";
 
-            // --- 關鍵字特效偵測 (支援多個關鍵字用逗號分隔) ---
-            let effectAttr = '';
-            let matchedEffect = null;
 
+
+            // --- 關鍵字特效偵測 (支援多個關鍵字用逗號分隔) ---
+            let matchedEffect = null;
             if (currentEffects && currentEffects.length > 0) {
                 let firstIndex = Infinity;
-
                 currentEffects.forEach(eff => {
-                    // 拆分關鍵字（支援 考試,段考）
                     const keywords = eff.keyword.split(',').map(k => k.trim());
                     keywords.forEach(kw => {
                         const idx = msg.content.indexOf(kw);
@@ -1984,7 +2329,6 @@
                 });
 
                 if (matchedEffect) {
-                    effectAttr = `onmouseenter="createParticles(this, '${matchedEffect.mode}', '${matchedEffect.icon}')"`;
                     card.dataset.autoEffect = "true";
                     card.dataset.effectMode = matchedEffect.mode;
                     card.dataset.effectIcon = matchedEffect.icon;
@@ -1995,16 +2339,16 @@
             let contentHtml = typeof marked !== 'undefined' ? marked.parse(msg.content) : msg.content;
 
             card.innerHTML = `
+                <div class="card-stamp">
+                    <div class="stamp-date">${stampMonth}/${stampDay}</div>
+                    <div class="stamp-label">${msg.topicTag ? '#' + msg.topicTag : 'Heart'}</div>
+                </div>
                 <div class="card-greeting">致：${msg.target}</div>
-                <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}" ${effectAttr}>${contentHtml}</div>
+                <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${contentHtml}</div>
                 <div class="card-footer">
                     <div class="card-tag tag-${msg.tag}">${msg.tag}</div>
                     <div class="card-author">${msg.displayName}</div>
                 </div>
-                <button class="card-like ${likedClass}" onclick="toggleLike('${msg.id}', this)" title="送他一個心">
-                    <i class="fas fa-heart"></i>
-                    ${msg.likes > 0 ? `<span class="like-count">${msg.likes}</span>` : ''}
-                </button>
             `;
 
 
@@ -2016,24 +2360,31 @@
 
             board.appendChild(card);
 
-            // 關鍵字特效自動觸發
+            // 關鍵字特效自動觸發 (出現 1 秒後執行)
             if (card.dataset.autoEffect === "true") {
                 setTimeout(() => {
                     createParticles(card.querySelector('.card-content'), card.dataset.effectMode, card.dataset.effectIcon);
                 }, 1000);
             }
 
-            // 隨機動畫延遲
-            card.style.animationDelay = `0s, ${Math.random() * 2}s`;
 
-            // 所有卡片均參與消失邏輯 (公告已由頂部跑馬燈取代)
+
+            // 卡片生命週期：10 秒後回收 (含淡出)
+            // 卡片生命週期：隨機 12~20 秒 (達成 3~5 張的隨機波動感)
+            // 數學原理：12s/4s = 3張, 20s/4s = 5張
+            const lifeTime = Math.floor(Math.random() * (20000 - 12000 + 1) + 12000);
+
             setTimeout(() => {
                 card.classList.add('fade-out');
                 setTimeout(() => {
                     card.remove();
                     displayingIndexes.delete(index);
+
+                    // 關鍵：卡片消失後，主動觸發一次補位檢查
+                    // 依需求：消失後 4 秒才補位
+                    setTimeout(() => rotateMessages(), 4000);
                 }, 1000);
-            }, 11000);
+            }, lifeTime);
         }
 
 
@@ -2069,7 +2420,8 @@
 
         // --- 送出留言 ---
         async function submitDraft() {
-            if (!currentUserEmail) {
+            // 決定身份：若為學校模式且未登入，則擋下；若為訪客模式且未登入，則套用 visitor 邏輯
+            if (currentSubmissionMode === 'school' && !currentUserEmail) {
                 showModal('提示', '請先使用學校 Google 帳號登入，以維護校園留言環境。', 'warning');
                 return;
             }
@@ -2092,6 +2444,7 @@
                 content: content,
                 isAnonymous: isAnonymous,
                 anonymousName: isAnonymous ? (anonymousName || '小天使') : '',
+                topicTag: document.getElementById('topicTag')?.value || '',
                 email: currentUserEmail,
                 name: currentUserName
             };
@@ -2144,6 +2497,8 @@
         // --- 管理後台處理 ---
         let adminRawData = [];
         let currentTab = "待審核";
+        let currentAdminLimit = 20; // 預設顯示數量
+        const ADMIN_PAGE_SIZE = 20; // 每次展開數量
 
         async function doAdminLogin() {
             const password = document.getElementById('adminPassword').value;
@@ -2171,17 +2526,43 @@
                 sheetLink.style.display = 'inline-block';
             }
 
+            // 同步標籤設定
+            if (data.topicConfig) {
+                topicConfig = data.topicConfig;
+                applyTopicConfig();
+                if (document.getElementById('admin-topic-panel').style.display === 'block') {
+                    renderTopicManagementUI();
+                }
+            }
+
             // 同步測試模式狀態
             const testToggle = document.getElementById('toggleInternalTest');
             if (testToggle) testToggle.checked = !!data.isInternalTest;
+
+            // 同步投稿模式
+            const submissionModeSelect = document.getElementById('submissionModeSelect');
+            if (submissionModeSelect && data.submissionMode) {
+                submissionModeSelect.value = data.submissionMode;
+                currentSubmissionMode = data.submissionMode;
+            }
 
             switchTab(currentTab);
         }
 
         function switchTab(tab) {
             currentTab = tab;
+            currentAdminLimit = ADMIN_PAGE_SIZE; // 切換標籤時重置顯示數量
             document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.toggle('active', b.textContent === tab);
+                const btnText = b.textContent.trim();
+                const isActive = (btnText === tab ||
+                    (tab === '通過' && btnText === '通過') ||
+                    (tab === '駁回' && btnText === '駁回') ||
+                    (tab === '已下架' && btnText === '下架') ||
+                    (tab === '標籤管理' && btnText === '標籤庫') ||
+                    (tab === '特效設定' && btnText === '特效鈕') ||
+                    (tab === '系統設定' && btnText === '設定') ||
+                    (tab === '跑馬燈管理' && btnText === '跑馬燈'));
+                b.classList.toggle('active', isActive);
             });
 
             // 切換面版
@@ -2189,16 +2570,23 @@
             const annPanel = document.getElementById('admin-ann-panel');
             const settingsPanel = document.getElementById('admin-settings-panel');
             const effectPanel = document.getElementById('admin-effect-panel');
+            const topicPanel = document.getElementById('admin-topic-panel');
 
             // 先隱藏所有面板
             msgPanel.style.display = 'none';
             annPanel.style.display = 'none';
             settingsPanel.style.display = 'none';
             if (effectPanel) effectPanel.style.display = 'none';
+            if (topicPanel) topicPanel.style.display = 'none';
 
             if (tab === '跑馬燈管理') {
                 annPanel.style.display = 'block';
                 renderAnnManagementUI();
+            } else if (tab === '標籤管理') {
+                if (annPanel) annPanel.style.display = 'none';
+                if (msgPanel) msgPanel.style.display = 'none';
+                document.getElementById('admin-topic-panel').style.display = 'block';
+                renderTopicManagementUI();
             } else if (tab === '特效設定') {
                 if (effectPanel) effectPanel.style.display = 'block';
                 renderEffectEditor();
@@ -2240,7 +2628,7 @@
             const twoWeeksMs = 14 * 24 * 60 * 60 * 1000;
 
             const filtered = adminRawData.filter(m => {
-                const messageTime = new Date(m.timestamp).getTime();
+                const messageTime = new Date(m.approvalTime || m.timestamp).getTime(); // Use approvalTime for filtering
                 const isExpired = (now - messageTime) > twoWeeksMs;
 
                 if (tab === '已下架') {
@@ -2254,12 +2642,15 @@
                 }
             });
 
-            if (filtered.length === 0) {
+            const hasMore = filtered.length > currentAdminLimit;
+            const toShow = filtered.slice(0, currentAdminLimit);
+
+            if (toShow.length === 0) {
                 list.innerHTML = `<li style="text-align:center; padding: 2rem; color: #999;">目前沒有${tab}的留言。</li>`;
                 return;
             }
 
-            filtered.forEach(m => {
+            toShow.forEach(m => {
                 const li = document.createElement('li');
                 li.className = 'admin-item';
                 const msgDate = new Date(m.timestamp);
@@ -2270,19 +2661,42 @@
                 li.innerHTML = `
                     <input type="checkbox" class="msg-checkbox item-checkbox" value="${m.id}">
                     <div class="item-info">
-                        <div class="item-meta">${dateStr} · <span class="item-target">${m.target}</span> · ${m.tag} ${expiredBadge}</div>
+                        <div class="item-meta">
+                            ${dateStr} · <span class="item-target">${m.target}</span> · 
+                            <span class="tag-${m.tag}" style="padding:1px 6px; border-radius:4px; font-size:10px;">${m.tag}</span>
+                            ${m.topicTag ? `<span style="background:var(--primary-coral); color:white; padding:1px 6px; border-radius:4px; font-size:10px; margin-left:5px;">${m.topicTag}</span>` : ''}
+                            ${expiredBadge}
+                        </div>
                         <div class="item-content">${m.content}</div>
                         <div style="font-size:0.75rem; color:#888; margin-top:2px;">
                             顯示：${m.displayName} ｜ 真實：${m.realName || '不具名'}（${m.account}）
                         </div>
                     </div>
                     <div class="admin-actions">
+                        <button class="btn-approve" style="background:#f39c12; border-color:#e67e22;" onclick="editMessage('${m.id}')" title="編輯內容"><i class="fas fa-edit"></i></button>
                         ${(m.status !== '通過' || (isExpired && !m.isPinned)) ? `<button class="btn-approve" onclick="updateStatus('${m.id}', '通過')" title="重新上架">✓</button>` : ''}
                         ${m.status !== '駁回' ? `<button class="btn-reject" onclick="updateStatus('${m.id}', '駁回')">✗</button>` : ''}
                     </div>
                 `;
                 list.appendChild(li);
             });
+
+            // 如果還有更多留言，渲染「顯示更多」按鈕
+            if (hasMore) {
+                const loadMoreLi = document.createElement('li');
+                loadMoreLi.style.cssText = 'padding: 1rem; text-align: center; list-style: none;';
+                loadMoreLi.innerHTML = `
+                    <button onclick="loadMoreAdminMessages()" class="tab-btn" style="margin: 0 auto; padding: 10px 30px; border-radius: 20px; border: 1px dashed var(--primary-coral); color: var(--primary-coral); background: rgba(231, 103, 103, 0.05);">
+                        顯示更多留言 (還有 ${filtered.length - currentAdminLimit} 則)
+                    </button>
+                `;
+                list.appendChild(loadMoreLi);
+            }
+        }
+
+        function loadMoreAdminMessages() {
+            currentAdminLimit += ADMIN_PAGE_SIZE;
+            renderMessageManagementUI(currentTab);
         }
 
 
@@ -2324,6 +2738,13 @@
                     testToggle.checked = !!res.isInternalTest;
                 }
 
+                // 同步投稿模式
+                const submissionModeSelect = document.getElementById('submissionModeSelect');
+                if (submissionModeSelect && res.submissionMode) {
+                    submissionModeSelect.value = res.submissionMode;
+                    currentSubmissionMode = res.submissionMode;
+                }
+
                 switchTab(currentTab);
             } else if (res && res.error) {
                 showModal('錯誤', res.error, 'error');
@@ -2351,6 +2772,73 @@
             if (res && res.status === "success") {
                 loadAdminMessages();
                 loadMessages();
+            }
+        }
+
+        async function editMessage(id) {
+            const msg = adminRawData.find(m => m.id === id);
+            if (!msg) return;
+
+            // 準備標籤下拉選單 HTML
+            const library = topicConfig.library ? topicConfig.library.split('\n').map(t => t.trim()).filter(t => t) : [];
+            let topicOptionsHTML = '<option value="">(無)</option>';
+            library.forEach(t => {
+                topicOptionsHTML += `<option value="${t}" ${msg.topicTag === t ? 'selected' : ''}>${t}</option>`;
+            });
+
+            const { value: formValues } = await Swal.fire({
+                title: '編輯留言內容',
+                html:
+                    `<div style="text-align:left; font-size:0.9rem;">` +
+                    `<label>留言內容：</label>` +
+                    `<textarea id="swal-content" class="swal2-textarea" style="width:100%; height:100px; margin:10px 0;">${msg.content}</textarea>` +
+                    `<label>類別：</label>` +
+                    `<select id="swal-tag" class="swal2-select" style="width:100%; margin:10px 0;">
+                        <option value="鼓勵" ${msg.tag === '鼓勵' ? 'selected' : ''}>💪 鼓勵</option>
+                        <option value="讚美" ${msg.tag === '讚美' ? 'selected' : ''}>✨ 讚美</option>
+                        <option value="關心" ${msg.tag === '關心' ? 'selected' : ''}>🫂 關心</option>
+                        <option value="感謝" ${msg.tag === '感謝' ? 'selected' : ''}>🍂 感謝</option>
+                        <option value="祝福" ${msg.tag === '祝福' ? 'selected' : ''}>🎈 祝福</option>
+                    </select>` +
+                    `<label>標籤：</label>` +
+                    `<select id="swal-topic" class="swal2-select" style="width:100%; margin:10px 0;">
+                        ${topicOptionsHTML}
+                    </select>` +
+                    `<label>顯示名稱：</label>` +
+                    `<input id="swal-displayname" class="swal2-input" style="width:100%; margin:10px 0;" value="${msg.displayName}">` +
+                    `</div>`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: '確認修改',
+                cancelButtonText: '取消',
+                preConfirm: () => {
+                    return {
+                        content: document.getElementById('swal-content').value,
+                        tag: document.getElementById('swal-tag').value,
+                        topicTag: document.getElementById('swal-topic').value,
+                        displayName: document.getElementById('swal-displayname').value
+                    }
+                }
+            });
+
+            if (formValues) {
+                const password = localStorage.getItem('admin_password');
+                Swal.fire({ title: '修改中...', didOpen: () => Swal.showLoading() });
+
+                const res = await fetchAPI('updateMessage', {
+                    id,
+                    content: formValues.content,
+                    tag: formValues.tag,
+                    topicTag: formValues.topicTag,
+                    displayName: formValues.displayName,
+                    password
+                });
+
+                if (res && res.status === "success") {
+                    showModal('成功', '留言內容已更新', 'success');
+                    loadAdminMessages();
+                    loadMessages();
+                }
             }
         }
 
@@ -2545,134 +3033,173 @@
             }
         }
 
+        // --- Canvas 特效引擎 (替代舊有 DOM 粒子) ---
+        class EffectEngine {
+            constructor() {
+                this.canvas = document.getElementById('effectCanvas');
+                this.ctx = this.canvas.getContext('2d', { alpha: true });
+                this.particles = [];
+                this.lastTime = performance.now();
+                this.isRunning = false;
+                this.dpr = window.devicePixelRatio || 1;
+                // 效能優化：對極高解析度進行降採樣
+                this.scale = this.dpr > 2 ? 0.75 : 1.0;
+
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.loop = this.loop.bind(this);
+            }
+
+            resize() {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                this.canvas.width = w * this.dpr * this.scale;
+                this.canvas.height = h * this.dpr * this.scale;
+                this.canvas.style.width = w + 'px';
+                this.canvas.style.height = h + 'px';
+                this.ctx.scale(this.dpr * this.scale, this.dpr * this.scale);
+            }
+
+            addParticles(element, mode, icon) {
+                const rect = element ? element.getBoundingClientRect() : { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                let count = 12;
+                if (mode === 'firework') count = 1;
+                else if (mode === 'snow') count = 20;
+                else if (mode === 'sparkle') count = 15;
+
+                for (let i = 0; i < count; i++) {
+                    const p = {
+                        x: centerX,
+                        y: centerY,
+                        mode: mode,
+                        icon: icon,
+                        size: 15 + Math.random() * 20,
+                        alpha: 1,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        life: 1,
+                        decay: 0.01 + Math.random() * 0.02,
+                        angle: Math.random() * Math.PI * 2,
+                        rotation: Math.random() * Math.PI * 2,
+                        rotSpeed: (Math.random() - 0.5) * 0.1
+                    };
+
+                    if (mode === 'snow') {
+                        p.x = Math.random() * window.innerWidth;
+                        p.y = -20;
+                        p.vx = (Math.random() - 0.5) * 2;
+                        p.vy = 2 + Math.random() * 3;
+                        p.decay = 0.003;
+                    } else if (mode === 'rain') {
+                        p.x = Math.random() * window.innerWidth;
+                        p.y = -20;
+                        p.vx = 1;
+                        p.vy = 8 + Math.random() * 5;
+                        p.decay = 0.01;
+                    } else if (mode === 'float') {
+                        p.x = rect.left + Math.random() * rect.width;
+                        p.y = rect.bottom;
+                        p.vx = (Math.random() - 0.5) * 1;
+                        p.vy = -(1 + Math.random() * 1.5);
+                        p.decay = 0.008;
+                    } else if (mode === 'firework') {
+                        this.createFirework(centerX, rect.bottom, icon);
+                        return;
+                    }
+
+                    this.particles.push(p);
+                }
+
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.lastTime = performance.now();
+                    requestAnimationFrame(this.loop);
+                }
+            }
+
+            createFirework(x, y, icon) {
+                const p = {
+                    x, y, icon, mode: 'firework-up',
+                    vx: 0, vy: -12, alpha: 1, life: 1, size: 25, decay: 0.02
+                };
+                this.particles.push(p);
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.lastTime = performance.now();
+                    requestAnimationFrame(this.loop);
+                }
+            }
+
+            explode(x, y, icon) {
+                for (let i = 0; i < 24; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const spd = 2 + Math.random() * 6;
+                    this.particles.push({
+                        x, y, icon, mode: 'burst',
+                        vx: Math.cos(angle) * spd,
+                        vy: Math.sin(angle) * spd,
+                        size: 10 + Math.random() * 15,
+                        alpha: 1, life: 1, decay: 0.02,
+                        rotation: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            loop(time) {
+                if (this.particles.length === 0) {
+                    this.isRunning = false;
+                    this.ctx.clearRect(0, 0, this.canvas.width / (this.dpr * this.scale), this.canvas.height / (this.dpr * this.scale));
+                    return;
+                }
+
+                const dt = Math.min(2, (time - this.lastTime) / 16.6);
+                this.lastTime = time;
+                this.ctx.clearRect(0, 0, this.canvas.width / (this.dpr * this.scale), this.canvas.height / (this.dpr * this.scale));
+
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.life -= p.decay * dt;
+                    p.rotation += (p.rotSpeed || 0.05) * dt;
+
+                    if (p.mode === 'firework-up') {
+                        if (p.vy < 0) p.vy += 0.22 * dt;
+                        if (p.life < 0.25) {
+                            this.explode(p.x, p.y, p.icon);
+                            p.life = 0;
+                        }
+                    } else if (p.mode === 'burst' || p.mode === 'sparkle') {
+                        p.vy += 0.12 * dt;
+                    }
+
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+
+                    this.ctx.save();
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.translate(p.x, p.y);
+                    this.ctx.rotate(p.rotation || 0);
+                    this.ctx.font = `${p.size}px Arial`;
+                    this.ctx.fillText(p.icon, -p.size / 2, p.size / 2);
+                    this.ctx.restore();
+                }
+
+                if (this.isRunning) {
+                    requestAnimationFrame(this.loop);
+                }
+            }
+        }
+
+        // 初始化
+        const effectEngine = new EffectEngine();
         function createParticles(element, mode, icon) {
-            // 避免重複觸發過多粒子，簡單防抖
-            if (element.dataset.isAnimating === "true") return;
-            element.dataset.isAnimating = "true";
-            setTimeout(() => delete element.dataset.isAnimating, 1000);
-
-            const rect = element.getBoundingClientRect();
-            const container = document.createElement('div');
-
-            // 針對不同模式調整容器定位 (飄雪為全螢幕)
-            if (mode === 'snow') {
-                container.style.position = 'fixed';
-                container.style.top = '0';
-                container.style.left = '0';
-                container.style.width = '100vw';
-                container.style.height = '100vh';
-            } else {
-                container.style.position = 'fixed'; // 使用 fixed 定位在畫面上
-                container.style.top = rect.top + 'px';
-                container.style.left = rect.left + 'px';
-                container.style.width = rect.width + 'px';
-                container.style.height = rect.height + 'px';
-            }
-
-            container.style.pointerEvents = 'none';
-            container.style.overflow = 'visible';
-            // 確保容器疊加在所有內容之上
-            container.style.zIndex = '10000';
-            document.body.appendChild(container);
-
-            // --- 效能優化：粒子減量計畫 ---
-            let count = 8;
-            if (mode === 'firework') count = 1;
-            else if (mode === 'sparkle') count = 10;
-            else if (mode === 'snow') count = 8;
-            else if (mode === 'bounce' || mode === 'pulse') count = 5;
-
-            for (let i = 0; i < count; i++) {
-                const p = document.createElement('div');
-                p.textContent = icon;
-                p.className = 'particle';
-                p.style.fontSize = (15 + Math.random() * 15) + 'px';
-
-                if (mode === 'burst') {
-                    const angle = Math.random() * 360;
-                    const velocity = 60 + Math.random() * 120;
-                    const tx = Math.cos(angle * Math.PI / 180) * velocity + 'px';
-                    const ty = Math.sin(angle * Math.PI / 180) * velocity + 'px';
-                    const rot = (Math.random() * 360) + 'deg';
-
-                    p.style.left = '50%';
-                    p.style.top = '50%';
-                    p.style.setProperty('--tx', tx);
-                    p.style.setProperty('--ty', ty);
-                    p.style.setProperty('--rot', rot);
-                    p.style.animation = `burstOut 0.8s ease-out forwards`;
-                }
-                else if (mode === 'float') {
-                    p.style.left = (Math.random() * 100) + '%';
-                    p.style.bottom = '-30px';
-                    p.style.animation = `floatUp ${2.5 + Math.random()}s ease-in-out forwards`;
-                    p.style.animationDelay = Math.random() * 0.8 + 's';
-                }
-                else if (mode === 'rain') {
-                    p.style.left = (Math.random() * 120 - 10) + '%';
-                    p.style.top = '-40px';
-                    p.style.animation = `rainDown ${1.2 + Math.random()}s linear forwards`;
-                    p.style.animationDelay = Math.random() * 1.5 + 's';
-                }
-                else if (mode === 'spiral') {
-                    const angle = Math.random() * 360;
-                    const dist = 100 + Math.random() * 100;
-                    const tx = Math.cos(angle * Math.PI / 180) * dist + 'px';
-                    const ty = Math.sin(angle * Math.PI / 180) * dist + 'px';
-
-                    p.style.left = '50%';
-                    p.style.top = '50%';
-                    p.style.setProperty('--tx', tx);
-                    p.style.setProperty('--ty', ty);
-                    p.style.animation = `spiralIn 1.5s ease-out forwards`;
-                    p.style.animationDelay = Math.random() * 0.5 + 's';
-                }
-                else if (mode === 'firework') {
-                    p.style.left = '50%';
-                    p.style.bottom = '0';
-                    p.style.animation = `fireworkUp 1s ease-out forwards`;
-
-                    setTimeout(() => {
-                        createExplosion(container, icon);
-                        p.remove();
-                    }, 900);
-                }
-                else if (mode === 'sparkle') {
-                    const x = (Math.random() * 100) + '%';
-                    const y = (Math.random() * 100) + '%';
-                    p.style.left = x;
-                    p.style.top = y;
-                    p.style.animation = `sparkleAnim ${0.5 + Math.random()}s ease-in-out alternate infinite`;
-                    p.style.animationDelay = Math.random() * 2 + 's';
-                    setTimeout(() => p.remove(), 3000);
-                }
-                else if (mode === 'snow') {
-                    p.style.left = (Math.random() * 100) + '%';
-                    p.style.top = '-20px';
-                    p.style.setProperty('--sway', (Math.random() * 100 - 50) + 'px');
-                    p.style.setProperty('--rot', (Math.random() * 360) + 'deg');
-                    p.style.animation = `snowFall ${6 + Math.random() * 6}s linear forwards`;
-                }
-                else if (mode === 'bounce') {
-                    p.style.left = (10 + Math.random() * 80) + '%';
-                    p.style.top = (10 + Math.random() * 80) + '%';
-                    p.style.animation = `bounceAnim 1s ease-in-out infinite`;
-                    p.style.animationDelay = Math.random() * 1 + 's';
-                }
-                else if (mode === 'pulse') {
-                    p.style.left = (10 + Math.random() * 80) + '%';
-                    p.style.top = (10 + Math.random() * 80) + '%';
-                    p.style.animation = `pulseHeart 1.5s ease-in-out infinite`;
-                    p.style.animationDelay = Math.random() * 1 + 's';
-                }
-
-                if (mode !== 'firework') container.appendChild(p);
-                else container.appendChild(p);
-            }
-
-            setTimeout(() => {
-                container.remove();
-            }, (mode === 'snow' ? 12000 : 4000));
+            effectEngine.addParticles(element, mode, icon);
         }
 
         function createExplosion(container, icon) {
@@ -2753,7 +3280,92 @@
             });
         }
 
-        function openPostModal() { document.getElementById('postModal').style.display = 'flex'; }
+        async function openPostModal() {
+            await checkSystemConfig();
+            loadTopicConfig();
+            const modal = document.getElementById('postModal');
+            const form = document.getElementById('postForm');
+
+            // 根據模式調整 UI
+            if (currentSubmissionMode === 'closed') {
+                form.style.display = 'none';
+                let notice = document.getElementById('closed-notice');
+                if (!notice) {
+                    notice = document.createElement('div');
+                    notice.id = 'closed-notice';
+                    notice.style.textAlign = 'center';
+                    notice.style.padding = '3rem 1rem';
+                    notice.innerHTML = `<div style="font-size: 3rem; color: #999; margin-bottom: 1rem;"><i class="fas fa-lock"></i></div><h3>本時段暫不開放投稿</h3><p>謝謝您的熱情，請等候下一次活動開啟！</p>`;
+                    modal.querySelector('.modal-content').appendChild(notice);
+                }
+                notice.style.display = 'block';
+            } else {
+                form.style.display = 'block';
+                const notice = document.getElementById('closed-notice');
+                if (notice) notice.style.display = 'none';
+
+                // 調整帳號驗證區塊
+                const identitySection = document.getElementById('identity-section');
+                const googleLogin = document.getElementById('google-login-container');
+                const customNameContainer = document.getElementById('custom-name-container');
+                const isAnonymousWrapper = document.getElementById('isAnonymous-wrapper');
+                const anonymousNameLabel = document.getElementById('anonymousNameLabel');
+                const anonymousNameWrapper = document.getElementById('anonymousNameWrapper');
+                const anonymousNameInput = document.getElementById('anonymousName');
+
+                if (currentSubmissionMode === 'public') {
+                    if (googleLogin) googleLogin.style.display = 'none';
+
+                    // 讓外層容器也與下方一致 (移除白色底色與邊框)
+                    if (identitySection) {
+                        identitySection.style.background = 'none';
+                        identitySection.style.border = 'none';
+                        identitySection.style.padding = '0';
+                    }
+
+                    // 讓欄位樣式跟下面一致 (移除背景與虛線)
+                    customNameContainer.style.background = 'none';
+                    customNameContainer.style.border = 'none';
+                    customNameContainer.style.padding = '0';
+                    customNameContainer.style.flexDirection = 'column';
+                    customNameContainer.style.alignItems = 'flex-start';
+
+                    isAnonymousWrapper.style.display = 'none';
+                    anonymousNameLabel.style.display = 'block';
+                    anonymousNameWrapper.style.display = 'block';
+
+                    document.getElementById('isAnonymous').checked = true;
+                    anonymousNameInput.placeholder = "您的稱呼 (選填)";
+                    document.querySelector('#postModal h2').textContent = "✨ 寫下暖心留言 (外賓開放中)";
+                } else {
+                    if (googleLogin) googleLogin.style.display = 'block';
+
+                    // 恢復原有的白色底座樣式
+                    if (identitySection) {
+                        identitySection.style.background = '#fff';
+                        identitySection.style.border = '1px solid #eee';
+                        identitySection.style.padding = '0.8rem';
+                    }
+
+                    // 恢復原有的並排樣式
+                    customNameContainer.style.background = 'rgba(139, 90, 43, 0.04)';
+                    customNameContainer.style.border = '1px dashed rgba(139, 90, 43, 0.1)';
+                    customNameContainer.style.padding = '0.5rem 0.8rem';
+                    customNameContainer.style.flexDirection = 'row';
+                    customNameContainer.style.alignItems = 'center';
+
+                    isAnonymousWrapper.style.display = 'flex';
+                    anonymousNameLabel.style.display = 'none';
+
+                    // 根據原本的 toggle 邏輯決定 wrapper 是否顯示
+                    toggleAnonymousName();
+
+                    anonymousNameInput.placeholder = "您的稱呼 (選填)";
+                    document.querySelector('#postModal h2').textContent = "✨ 寫下暖心留言";
+                }
+            }
+            modal.style.display = 'flex';
+        }
         function openAdminModal() {
             const modal = document.getElementById('adminModal');
             modal.style.display = 'flex';
@@ -2809,17 +3421,238 @@
 
         async function saveSystemConfig() {
             const isInternalTest = document.getElementById('toggleInternalTest').checked;
+            const submissionMode = document.getElementById('submissionModeSelect').value;
             const password = localStorage.getItem('admin_password');
 
             Swal.fire({ title: '儲存設定中...', didOpen: () => Swal.showLoading() });
 
-            const res = await fetchAPI('updateSystemConfig', { isInternalTest, password });
+            const res = await fetchAPI('updateSystemConfig', { isInternalTest, submissionMode, password });
 
             if (res && res.status === "success") {
                 showModal('成功', '系統設定已更新', 'success');
                 checkSystemConfig(); // 立即套用至前端顯示
             } else {
                 Swal.close();
+            }
+        }
+
+        async function saveTopicConfig() {
+            const container = document.getElementById('topic-list-container');
+            const rows = container.querySelectorAll('.topic-manage-row');
+
+            let library = [];
+            let activeSubmission = [];
+            let defaultWall = [];
+
+            rows.forEach(row => {
+                const tag = row.dataset.tag;
+                library.push(tag);
+                if (row.querySelector('.check-submit').checked) activeSubmission.push(tag);
+                if (row.querySelector('.check-wall').checked) defaultWall.push(tag);
+            });
+
+            const config = {
+                library: library.join('\n'),
+                activeSubmissionTags: activeSubmission.join(', '),
+                defaultWallTags: defaultWall.join(', ')
+            };
+
+            const password = localStorage.getItem('admin_password');
+            Swal.fire({ title: '儲存標籤設定中...', didOpen: () => Swal.showLoading() });
+
+            const res = await fetchAPI('updateTopicConfig', { config, password });
+            if (res && res.status === "success") {
+                topicConfig = config;
+                applyTopicConfig();
+                showModal('成功', '活動標籤設定已更新', 'success');
+            } else {
+                Swal.close();
+            }
+        }
+
+        function renderTopicManagementUI() {
+            const container = document.getElementById('topic-list-container');
+            container.innerHTML = '';
+
+            const library = topicConfig.library ? topicConfig.library.split('\n').map(t => t.trim()).filter(t => t) : [];
+            const activeSubSet = new Set(topicConfig.activeSubmissionTags ? topicConfig.activeSubmissionTags.split(',').map(t => t.trim()) : []);
+            const defaultWallSet = new Set(topicConfig.defaultWallTags ? topicConfig.defaultWallTags.split(',').map(t => t.trim()) : []);
+
+            if (library.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:20px; color:#999;">目前標籤庫為空，請從上方新增。</p>';
+                return;
+            }
+
+            library.forEach(tag => {
+                const row = document.createElement('div');
+                row.className = 'topic-manage-row';
+                row.style = 'display:flex; align-items:center; background:white; padding:10px 15px; border-radius:10px; margin-bottom:8px; gap:15px; border:1px solid #eee;';
+                row.dataset.tag = tag;
+
+                const currentUrl = window.location.origin + window.location.pathname;
+                const activityLink = `${currentUrl}?view=wall&tag=${encodeURIComponent(tag)}`;
+
+                row.innerHTML = `
+                    <div style="flex:1; font-weight:bold; display:flex; align-items:center; gap:8px;">
+                        <a href="${activityLink}" target="_blank" title="在新分頁開啟此活動電視牆" style="color:var(--primary-coral); text-decoration:none;">
+                            ${tag} <i class="fas fa-external-link-alt" style="font-size:0.75rem; margin-left:3px; opacity:0.6;"></i>
+                        </a>
+                        <button onclick="renameTopicInLibrary('${tag}')" style="background:none; border:none; color:#999; cursor:pointer; padding:2px;" title="重新命名">
+                            <i class="fas fa-edit" style="font-size:0.8rem;"></i>
+                        </button>
+                    </div>
+                    <label style="font-size:0.8rem; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                        <input type="checkbox" class="check-submit" ${activeSubSet.has(tag) ? 'checked' : ''}> 投稿顯示
+                    </label>
+                    <label style="font-size:0.8rem; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                        <input type="checkbox" class="check-wall" ${defaultWallSet.has(tag) ? 'checked' : ''}> 電視牆預設
+                    </label>
+                    <button onclick="removeTopicFromLibrary('${tag}')" style="background:none; border:none; color:#ff7675; cursor:pointer; padding:5px;" title="刪除">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        async function renameTopicInLibrary(oldTag) {
+            const { value: newTag } = await Swal.fire({
+                title: '重新命名標籤',
+                input: 'text',
+                inputLabel: `將「${oldTag}」重新命名為：`,
+                inputValue: oldTag,
+                showCancelButton: true,
+                customClass: {
+                    input: 'swal-wide-input'
+                },
+                didOpen: () => {
+                    // 強制修正 SweetAlert2 輸入框寬度問題
+                    const input = Swal.getInput();
+                    if (input) {
+                        input.style.width = '100%';
+                        input.style.boxSizing = 'border-box';
+                        input.style.margin = '10px 0';
+                    }
+                },
+                inputValidator: (value) => {
+                    if (!value || value.trim() === '') return '請輸入新名稱';
+                    if (value.trim() === oldTag) return '名稱沒有變動';
+                }
+            });
+
+            if (newTag) {
+                const password = localStorage.getItem('admin_password');
+                Swal.fire({ title: '標籤更名同步中...', didOpen: () => Swal.showLoading() });
+
+                const res = await fetchAPI('renameTopicTag', { oldName: oldTag, newName: newTag.trim(), password });
+                if (res && res.status === "success") {
+                    showModal('更名成功', `已更新 ${res.updatedCount} 則歷史留言的標籤名稱。`, 'success');
+                    loadTopicConfig();
+                    loadAdminMessages();
+                } else {
+                    Swal.close();
+                }
+            }
+        }
+
+        function addTopicToLibrary() {
+            const input = document.getElementById('new-topic-tag-input');
+            let tag = input.value.trim();
+            if (!tag) return;
+            if (!tag.startsWith('#')) tag = '#' + tag;
+
+            const library = topicConfig.library ? topicConfig.library.split('\n').map(t => t.trim()).filter(t => t) : [];
+            if (library.includes(tag)) {
+                showModal('提示', '此標籤已存在標籤庫中', 'info');
+                return;
+            }
+
+            library.push(tag);
+            topicConfig.library = library.join('\n');
+            input.value = '';
+            renderTopicManagementUI();
+        }
+
+        function removeTopicFromLibrary(tag) {
+            Swal.fire({
+                title: '確定刪除？',
+                text: `將標籤 ${tag} 從標籤庫移除`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '確定',
+                cancelButtonText: '取消'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const library = topicConfig.library.split('\n').map(t => t.trim()).filter(t => t !== tag);
+                    topicConfig.library = library.join('\n');
+
+                    // 同步移除 active/default 中的該標籤
+                    const active = topicConfig.activeSubmissionTags.split(',').map(t => t.trim()).filter(t => t && t !== tag);
+                    const defWall = topicConfig.defaultWallTags.split(',').map(t => t.trim()).filter(t => t && t !== tag);
+                    topicConfig.activeSubmissionTags = active.join(', ');
+                    topicConfig.defaultWallTags = defWall.join(', ');
+
+                    renderTopicManagementUI();
+                }
+            });
+        }
+
+        function applyTopicConfig() {
+            const submissionWrapper = document.getElementById('topic-tag-wrapper');
+            const pillsContainer = document.getElementById('topic-pills-container');
+            const hiddenInput = document.getElementById('topicTag');
+
+            if (topicConfig.activeSubmissionTags) {
+                const tags = topicConfig.activeSubmissionTags.split(',').map(t => t.trim()).filter(t => t);
+                if (tags.length > 0) {
+                    pillsContainer.innerHTML = '';
+
+                    // 新增「不指定」選項
+                    const resetBtn = document.createElement('div');
+                    resetBtn.className = 'tag-pill active';
+                    resetBtn.textContent = '無標籤';
+                    resetBtn.onclick = () => selectTopicTag('', resetBtn);
+                    pillsContainer.appendChild(resetBtn);
+                    hiddenInput.value = '';
+
+                    tags.forEach(tag => {
+                        const pill = document.createElement('div');
+                        pill.className = 'tag-pill';
+                        pill.textContent = tag;
+                        pill.onclick = () => selectTopicTag(tag, pill);
+                        pillsContainer.appendChild(pill);
+                    });
+
+                    submissionWrapper.style.display = 'flex';
+                    submissionWrapper.style.flexDirection = 'column';
+                    submissionWrapper.style.gap = '0.5rem';
+                } else {
+                    submissionWrapper.style.display = 'none';
+                }
+                loadMessages();
+            } else {
+                submissionWrapper.style.display = 'none';
+            }
+        }
+
+        function selectTopicTag(tag, element) {
+            document.getElementById('topicTag').value = tag;
+            document.querySelectorAll('#topic-pills-container .tag-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showModal('已複製', '網址已複製到剪貼簿', 'success');
+            });
+        }
+        async function loadTopicConfig() {
+            const res = await fetchAPI('getTopicConfig');
+            if (res && !res.error) {
+                topicConfig = res;
+                applyTopicConfig();
             }
         }
     </script>
