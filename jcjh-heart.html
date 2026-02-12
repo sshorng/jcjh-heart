@@ -114,8 +114,8 @@
 
         .header-bar {
             position: fixed;
-            top: 50px;
-            /* 30px 跑馬燈 + 20px 緩衝 */
+            top: 46px;
+            /* 36px 跑馬燈 + 10px 緊湊留白 */
             left: 1.5rem;
             z-index: 2000;
             background: rgba(255, 255, 255, 0.4);
@@ -165,8 +165,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 30px;
-            /* 縮減高度至 30px，更纖細優雅 */
+            height: 36px;
+            /* 調整至 36px，縮減垂直留白，視覺更緊實 */
             background: linear-gradient(90deg, rgba(230, 103, 103, 0.9) 0%, rgba(242, 121, 121, 0.85) 100%);
             backdrop-filter: blur(15px);
             z-index: 1100;
@@ -186,9 +186,10 @@
             /* 預設更慢的速度 */
             color: white;
             font-weight: 500;
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+            font-size: 1.1rem;
+            /* 微調：清晰但不大於主標題 (1.2rem) */
+            letter-spacing: 0.8px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .ticker-item {
@@ -1099,9 +1100,42 @@
             display: none !important;
         }
 
-        /* 投稿模式下禁止關閉投稿視窗 */
         body.post-only-mode #postModal .modal-close {
             display: none !important;
+        }
+
+        /* 測試模式提示條 */
+        .test-notice-banner {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(230, 103, 103, 0.9);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            z-index: 3000;
+            box-shadow: 0 10px 30px rgba(230, 103, 103, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.5s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -1113,6 +1147,11 @@
         </div>
     </div>
     <div class="ambient-glow"></div>
+
+    <!-- 測試模式提示 -->
+    <div id="testModeNotice" class="test-notice-banner" style="display: none;">
+        <i class="fas fa-info-circle"></i> 內部測試中，請等待正式公告開放
+    </div>
 
     <header>
         <div class="header-bar">
@@ -1211,7 +1250,7 @@
                         data-auto_prompt="false" style="z-index: 2000;">
                     </div>
                     <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
-                        data-text="signin_with" data-size="large" data-logo_alignment="left" style="z-index: 2000;">
+                        data-text="signin_with" data-size="large" style="z-index: 2000;">
                     </div>
                 </div>
 
@@ -1255,6 +1294,7 @@
                         <div class="tab-btn" onclick="switchTab('跑馬燈管理')">跑馬燈管理</div>
                         <div class="tab-btn" onclick="switchTab('駁回')">已駁回</div>
                         <div class="tab-btn" onclick="switchTab('已下架')">已下架</div>
+                        <div class="tab-btn" onclick="switchTab('系統設定')">系統設定</div>
                     </div>
 
                     <!-- 留言管理分頁 -->
@@ -1283,6 +1323,20 @@
                             儲存並更新跑馬燈
                         </button>
                     </div>
+
+                    <!-- 系統設定 -->
+                    <div id="admin-settings-panel" class="tab-pane" style="display: none;">
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--warm-brown);">系統設定</h4>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <input type="checkbox" id="toggleInternalTest" style="width: 20px; height: 20px;"
+                                onchange="toggleSystemConfig('isInternalTest', this.checked)">
+                            <label for="toggleInternalTest" style="font-weight: 600; color: #555;">啟用內部測試模式</label>
+                            <span style="font-size: 0.8rem; color: #888;">(啟用後，電視牆將隱藏投稿按鈕並顯示提示)</span>
+                        </div>
+                        <button class="btn-submit" onclick="saveSystemConfig()" style="margin-top: 1rem; width: 100%;">
+                            儲存系統設定
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1298,13 +1352,13 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         // --- 設定與變數 ---
-        const _G = "https://script.google.com/macros/s/AKfycbzZOrUP3veKI5oexCOwUHqLXeduo4bRlpRoglpCF-zl1NxeLuKDTBcJg7o0Acx9qC0R/exec";
+        const _G = "https://script.google.com/macros/s/AKfycbzZOrUP3veKI5oexCOwUHqLXeduo4bRlpCF-zl1NxeLuKDTBcJg7o0Acx9qC0R/exec";
         let currentUserEmail = null;
         let currentUserName = null;
         let allMessages = [];
         let usedIndexes = new Set(); // 用於追蹤已顯示的留言索引
         let likedMessages = JSON.parse(localStorage.getItem('liked_messages') || '[]'); // 已按讚的留言 ID
-
+        let isInternalTest = false; // 內部測試模式狀態
         // 敏感詞清單（可自行擴充）
         const SENSITIVE_WORDS = [
             '笨蛋', '白癡', '去死', '智障', '廢物', '垃圾', '滾', '爛',
@@ -1341,13 +1395,15 @@
             if (url && (isDisplayMode || isAdminMode)) {
                 loadMessages();
                 loadAnnouncements(); // 載入跑馬燈公告
+                checkSystemConfig(); // 檢查系統設定（測試模式）
                 setInterval(loadMessages, 20000); // 每 20 秒更新一次資料庫
                 setInterval(loadAnnouncements, 45000); // 跑馬燈更新頻率稍低
+                setInterval(checkSystemConfig, 60000); // 每分鐘檢查一次系統狀態
             }
 
-            // 電視牆穩定性：每 2 小時自動重新整理一次網頁，確保 code 更新與穩定
+            // 電視牆穩定性：每 30 分鐘自動重新整理一次網頁，確保 code 更新能及時生效並釋放記憶體
             if (isDisplayMode) {
-                setInterval(() => location.reload(), 7200000);
+                setInterval(() => location.reload(), 1800000);
             }
 
             // 預生成分享用的寫留言 QR Code (指向預設模式)
@@ -1419,6 +1475,34 @@
             wrapper.style.display = checkbox.checked ? 'block' : 'none';
         }
 
+        // --- 核心功能：檢查系統設定 (測試模式) ---
+        async function checkSystemConfig() {
+            const config = await fetchAPI('getSystemConfig');
+            if (config && typeof config.isInternalTest !== 'undefined') {
+                isInternalTest = config.isInternalTest;
+                applySystemConfig();
+            }
+        }
+
+        function applySystemConfig() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDisplayMode = urlParams.has('view') && urlParams.get('view') === 'wall';
+            const fab = document.querySelector('.fab-container');
+            const notice = document.getElementById('testModeNotice');
+
+            if (isInternalTest) {
+                // 如果是測試模式且在電視牆，則隱藏按鈕並顯示提示
+                if (isDisplayMode) {
+                    if (fab) fab.style.display = 'none';
+                    if (notice) notice.style.display = 'flex';
+                }
+            } else {
+                if (isDisplayMode) {
+                    if (fab) fab.style.display = 'flex';
+                    if (notice) notice.style.display = 'none';
+                }
+            }
+        }
         // --- 愛心按讚 ---
         async function toggleLike(msgId, btn) {
             const isLiked = likedMessages.includes(msgId);
@@ -1465,7 +1549,7 @@
 
             try {
                 // 修正邏輯：判斷哪些行動應該使用 POST
-                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements');
+                const isPost = (action === 'submitMessage' || action === 'updateStatus' || action === 'updatePin' || action === 'adminGetMessages' || action === 'updateAnnouncements' || action === 'updateSystemConfig');
 
                 const options = {
                     method: isPost ? 'POST' : 'GET',
@@ -1835,6 +1919,10 @@
                 sheetLink.style.display = 'inline-block';
             }
 
+            // 同步測試模式狀態
+            const testToggle = document.getElementById('toggleInternalTest');
+            if (testToggle) testToggle.checked = !!data.isInternalTest;
+
             switchTab(currentTab);
         }
 
@@ -1847,14 +1935,21 @@
             // 切換面版
             const msgPanel = document.getElementById('tab-content-list');
             const annPanel = document.getElementById('admin-ann-panel');
+            const settingsPanel = document.getElementById('admin-settings-panel');
 
             if (tab === '跑馬燈管理') {
                 msgPanel.style.display = 'none';
                 annPanel.style.display = 'block';
+                settingsPanel.style.display = 'none';
                 renderAnnManagementUI();
+            } else if (tab === '系統設定') {
+                msgPanel.style.display = 'none';
+                annPanel.style.display = 'none';
+                settingsPanel.style.display = 'block';
             } else {
                 msgPanel.style.display = 'block';
                 annPanel.style.display = 'none';
+                settingsPanel.style.display = 'none';
                 renderMessageManagementUI(tab);
             }
         }
@@ -2173,6 +2268,22 @@
         function updateCharCount() {
             const content = document.getElementById('content').value;
             document.getElementById('charCount').textContent = `${content.length} / 60`;
+        }
+
+        async function saveSystemConfig() {
+            const isInternalTest = document.getElementById('toggleInternalTest').checked;
+            const password = localStorage.getItem('admin_password');
+
+            Swal.fire({ title: '儲存設定中...', didOpen: () => Swal.showLoading() });
+
+            const res = await fetchAPI('updateSystemConfig', { isInternalTest, password });
+
+            if (res && res.status === "success") {
+                showModal('成功', '系統設定已更新', 'success');
+                checkSystemConfig(); // 立即套用至前端顯示
+            } else {
+                Swal.close();
+            }
         }
     </script>
 
