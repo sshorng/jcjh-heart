@@ -485,14 +485,19 @@
             background-size: 20px 20px, 100% 100%;
             border-radius: 12px;
             padding: 2.22rem;
-            padding-top: 3.2rem;
+            padding-top: 3.0rem;
+            /* 縮小頂部距離，讓「致：」往上移 */
             width: 340px;
-            min-height: 220px;
+            height: 260px;
+            /* 固定高度，不再隨內容增長 */
+            overflow: visible;
+            /* 恢復可見，避免裁切掉負定位的紙膠帶 */
             box-shadow: var(--card-shadow);
             position: absolute;
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 0.4rem;
+            /* 縮小間距，讓內容區更大 */
             will-change: transform, opacity;
             transform: translateZ(0);
             backface-visibility: hidden;
@@ -628,9 +633,21 @@
             color: #b07d62;
             font-size: 1rem;
             font-weight: 700;
-            padding-bottom: 8px;
+            padding-bottom: 4px;
+            /* 再次縮小，騰出空間給內容 */
             border-bottom: 1.5px solid rgba(176, 125, 98, 0.15);
             width: fit-content;
+        }
+
+        /* 新增內容容器，佔據剩餘空間，確保 footer 固定 */
+        .card-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* 防止內容溢出 */
+            position: relative;
         }
 
         .card-content {
@@ -639,24 +656,29 @@
             font-weight: 400;
             color: #4a3e3e;
             flex: 1;
-            padding: 10px 0;
+            /* 佔據 card-body 的剩餘空間 */
+            min-height: 0;
+            padding: 0;
+            /* 移除上下 padding，讓 flex 完全置中 */
             word-break: break-all;
+            /* overflow 由 card-body 控制 */
+            overflow: visible;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            /* 垂直置中 (Flex Direction 為 Column 時) */
             align-items: center;
+            /* 水平置中 */
             position: relative;
-            /* 關鍵：讓特效對準卡片 */
-            overflow: visible;
-            /* 恢復通透感 */
         }
 
-        /* 當有換行時：改為靠左，且頂部對齊 */
+        /* 當有換行時：改為靠左，但仍然垂直置中 */
         .card-content.has-newline {
             text-align: left;
             align-items: flex-start;
-            justify-content: flex-start;
+            justify-content: center;
+            /* 改回置中，確保短的多行文本也能居中 */
         }
 
         /* Markdown 標籤微修 */
@@ -692,21 +714,24 @@
             border-radius: 10px;
         }
 
-        /* 字級縮放類別 - 調整數值，增加 mini 級避免撐大 */
+        /* 字級縮放類別 - 針對 60 字限制優化 */
         .size-large {
-            --font-size: 1.55rem;
+            --font-size: 1.45rem;
         }
 
         .size-medium {
             --font-size: 1.35rem;
+            /* 再稍微放大 (原 1.3) */
         }
 
         .size-small {
-            --font-size: 1.15rem;
+            --font-size: 1.2rem;
+            /* 再稍微放大 (原 1.12) */
         }
 
         .size-mini {
             --font-size: 0.95rem;
+            /* 備用 */
         }
 
         .card-footer {
@@ -715,6 +740,10 @@
             align-items: center;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
             padding-top: 1.2rem;
+            flex-shrink: 0;
+            /* 關鍵：防止底部被壓縮或推擠 */
+            margin-top: auto;
+            /* 確保永遠貼底 */
         }
 
         .card-author {
@@ -2304,12 +2333,13 @@
             const hasNewline = msg.content.includes('\n');
             const renderedContent = typeof marked !== 'undefined' ? marked.parse(msg.content) : msg.content;
 
-            // --- 更細緻的字級優化，避免內容撐大卡片 ---
+            // --- 更細緻的字級優化，因為卡片已固定高度 260px ---
             const contentLen = msg.content.length;
             let sizeClass = "size-small";
-            if (contentLen < 35) sizeClass = "size-large";
-            else if (contentLen < 65) sizeClass = "size-medium";
-            else if (contentLen > 110) sizeClass = "size-mini";
+            if (contentLen < 12) sizeClass = "size-large";
+            else if (contentLen < 27) sizeClass = "size-medium";
+            // 27~60 字使用 small，超過 60 使用 mini
+            else if (contentLen >= 60) sizeClass = "size-mini";
 
 
 
@@ -2343,8 +2373,10 @@
                     <div class="stamp-date">${stampMonth}/${stampDay}</div>
                     <div class="stamp-label">${msg.topicTag ? '#' + msg.topicTag : 'Heart'}</div>
                 </div>
-                <div class="card-greeting">致：${msg.target}</div>
-                <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${contentHtml}</div>
+                <div class="card-body">
+                    <div class="card-greeting">致：${msg.target}</div>
+                    <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${contentHtml}</div>
+                </div>
                 <div class="card-footer">
                     <div class="card-tag tag-${msg.tag}">${msg.tag}</div>
                     <div class="card-author">${msg.displayName}</div>
