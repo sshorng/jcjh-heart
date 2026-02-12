@@ -929,37 +929,6 @@
             <span class="modal-close" onclick="closeModal('adminModal')">&times;</span>
             <h2 style="color: var(--warm-brown); text-align: center; margin-bottom: 1rem;">管理後台</h2>
 
-            <!-- 分享連結區域 - 僅保留分享網址與 QR Code -->
-            <div id="admin-share-ui"
-                style="border-bottom: 1px solid rgba(0,0,0,0.06); margin-bottom: 1rem; padding-bottom: 1rem;">
-                <div
-                    style="padding: 15px; background: linear-gradient(135deg, #fff0f5 0%, #fffaf5 100%); border-radius: 12px; border: 2px dashed var(--primary-coral);">
-                    <h4 style="margin: 0 0 10px 0; color: var(--primary-coral); font-size: 0.9rem;">✏️ 分享留言板給學生</h4>
-                    <p style="font-size: 0.8rem; color: #666; margin-bottom: 12px;">
-                        學生掃碼後可以<strong>直接寫留言</strong>，無需任何設定。</p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn-submit"
-                            style="flex: 1; padding: 10px; font-size: 0.85rem; background: linear-gradient(135deg, #f27979 0%, #ff9e9e 100%);"
-                            onclick="generateWriteShareLink()">
-                            <i class="fas fa-qrcode"></i> 產生寫留言 QR Code
-                        </button>
-                        <button class="btn-submit"
-                            style="flex: 1; padding: 10px; font-size: 0.85rem; background: #3498db;"
-                            onclick="copyWriteShareUrl()">
-                            <i class="fas fa-copy"></i> 複製寫留言連結
-                        </button>
-                    </div>
-                    <!-- 寫留言 QR Code 顯示區 -->
-                    <div id="write-share-area"
-                        style="display: none; margin-top: 15px; text-align: center; background: white; padding: 15px; border-radius: 10px;">
-                        <img id="writeShareQrImg"
-                            style="width: 200px; height: 200px; border-radius: 10px; box-shadow: 0 4px 15px rgba(242,121,121,0.2);">
-                        <p style="margin-top: 10px; font-size: 0.75rem; color: #888;">學生掃碼即可直接寫留言</p>
-                        <input type="text" id="writeShareUrlDisplay" readonly
-                            style="width: 100%; font-size: 0.7rem; padding: 8px; margin-top: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px;">
-                    </div>
-                </div>
-            </div>
 
 
             <div id="admin-management-ui" style="margin-top: 2rem;">
