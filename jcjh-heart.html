@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Color+Emoji&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Color+Emoji&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 & Marked.js -->
@@ -22,7 +22,7 @@
             /* 再次加深背景基準色 */
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.4);
-            --font-main: 'Noto Color Emoji', 'Noto Sans TC', 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-main: 'Inter', 'Noto Sans TC', 'Twemoji Color', 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif, system-ui;
             /* 效能優化：精簡陰影渲染負擔 */
             --card-shadow: 0 8px 25px rgba(107, 79, 79, 0.12);
         }
@@ -36,7 +36,7 @@
         }
 
         body {
-            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Outfit', 'Noto Sans TC', 'Segoe UI Symbol', sans-serif;
+            font-family: 'Inter', 'Noto Sans TC', 'Twemoji Color', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', "Microsoft JhengHei", Arial, sans-serif, system-ui;
             background: #fff5f2;
             color: #4a3e3e;
             margin: 0;
@@ -108,13 +108,49 @@
 
         /* --- 粒子特效系統 --- */
         /* 粒子特效特效飛舞範圍不受限 */
+        @font-face {
+            font-family: 'Twemoji Color';
+            src: url('https://cdn.jsdelivr.net/npm/twemoji-colr-font@latest/twemoji.woff2') format('woff2');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Fluent Emoji Color';
+            src: url('https://tetunori.github.io/fluent-emoji-webfont/dist/FluentEmojiColor.woff2') format('woff2');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenMoji Color';
+            src: url('https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji/font/OpenMoji-color-glyf_colr_0/OpenMoji-color-glyf_colr_0.woff2') format('woff2');
+            font-display: swap;
+        }
+
         .particle {
             position: absolute;
             pointer-events: none;
             will-change: transform, opacity;
             z-index: 10000;
-            /* 高於一切 */
-            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', serif;
+            /* 強制使用網頁字體，優先 Twemoji 再 Noto */
+            font-family: 'Twemoji Color', 'Noto Color Emoji', sans-serif;
+            font-variant-emoji: emoji;
+        }
+
+        /* 風格擴充：一律強制套用 Twemoji */
+        .particle.font-noto {
+            font-family: 'Noto Color Emoji', sans-serif !important;
+        }
+
+        .particle.font-twemoji {
+            font-family: 'Twemoji Color', sans-serif !important;
+        }
+
+        .particle.font-fluent {
+            font-family: 'Fluent Emoji Color', sans-serif !important;
+        }
+
+        .particle.font-openmoji {
+            font-family: 'OpenMoji Color', sans-serif !important;
         }
 
         /* 取消關鍵字高亮樣式
@@ -3274,7 +3310,7 @@
                     this.ctx.globalAlpha = p.life;
                     this.ctx.translate(p.x, p.y);
                     this.ctx.rotate(p.rotation || 0);
-                    this.ctx.font = `${p.size}px "Noto Color Emoji", serif`;
+                    this.ctx.font = `${p.size}px "Twemoji Color", "Noto Color Emoji", serif`;
                     this.ctx.textAlign = 'center';
                     this.ctx.fillText(p.icon, 0, p.size / 2);
                     this.ctx.restore();
@@ -3305,13 +3341,25 @@
 
                 const rad = Math.random() * Math.PI * 2;
                 const dist = 40 + Math.random() * 100;
-                const dx = Math.cos(rad) * dist + 'px';
-                const dy = Math.sin(rad) * dist + 'px';
+                const dx = Math.cos(rad) * dist;
+                const dy = Math.sin(rad) * dist;
 
-                p.style.setProperty('--ex', dx);
-                p.style.setProperty('--ey', dy);
-
-                p.style.animation = `explode 0.8s ease-out forwards`;
+                if (p.animate) {
+                    p.animate([
+                        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`, opacity: 0 }
+                    ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
+                    setTimeout(() => p.remove(), 850);
+                } else {
+                    p.style.transition = 'all 0.8s ease-out';
+                    p.style.transform = 'translate(-50%, -50%) scale(1)';
+                    p.style.opacity = '1';
+                    setTimeout(() => {
+                        p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`;
+                        p.style.opacity = '0';
+                        setTimeout(() => p.remove(), 850);
+                    }, 50);
+                }
                 container.appendChild(p);
             }
         }
