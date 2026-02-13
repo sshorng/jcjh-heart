@@ -2362,12 +2362,8 @@
                 }
             }
 
-            // --- 內容處理：排除 Markdown 符號 (純文字顯示) ---
-            function stripMarkdown(text) {
-                if (!text) return "";
-                return text.replace(/(\*\*|\*|~~|__|`|#|\[|\]|\(|\)|>)/g, '');
-            }
-            let contentHtml = stripMarkdown(msg.content);
+            // --- 內容處理：恢復原始呈現 (不進行 Markdown 解析或過濾) ---
+            let contentHtml = msg.content;
 
             card.innerHTML = `
                 <div class="card-stamp">
@@ -3102,6 +3098,7 @@
                 if (mode === 'firework') count = 1;
                 else if (mode === 'snow') count = 20;
                 else if (mode === 'sparkle') count = 15;
+                else if (mode === 'rain') count = 6; // 減少雨滴數量，避免畫面過於擁擠
 
                 for (let i = 0; i < count; i++) {
                     const p = {
@@ -3127,13 +3124,14 @@
                         p.vy = 2 + Math.random() * 3;
                         p.decay = 0.003;
                     } else if (mode === 'rain') {
-                        // 移除全螢幕，改為侷限在卡片範圍內
-                        p.x = rect.left + Math.random() * rect.width;
-                        p.y = rect.top - 10;
-                        p.vx = 0.5;
-                        p.vy = 8 + Math.random() * 4;
-                        p.decay = 0.01;
-                        p.limitY = rect.bottom;
+                        // 範圍覆蓋整則貼文，並稍微向外延伸
+                        const padding = 20;
+                        p.x = (rect.left - padding) + Math.random() * (rect.width + padding * 2);
+                        p.y = rect.top - 20;
+                        p.vx = 0.1; // 減慢橫移
+                        p.vy = 1.2 + Math.random() * 0.8; // 極致慢速 (原為 3 + random*2)
+                        p.decay = 0.007; // 增加生命週期讓慢速雨滴能落到目的地
+                        p.limitY = rect.bottom + 40; // 允許落到貼文下方一點點
                     } else if (mode === 'float') {
                         p.x = rect.left + Math.random() * rect.width;
                         p.y = rect.bottom;
