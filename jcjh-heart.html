@@ -19,7 +19,7 @@
             --primary-coral: #e66767;
             /* 加深珊瑚紅 */
             --soft-cream: #fcebe6;
-            /* 再次加深背景基準色 */ 
+            /* 再次加深背景基準色 */
             --glass-bg: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.4);
             --font-main: 'Noto Color Emoji', 'Noto Sans TC', 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -2235,20 +2235,23 @@
             gridPositions = [];
             const bw = window.innerWidth;
             const bh = window.innerHeight;
+
+            // 改用 .header-bar，因為 header 本身可能因為子元素 fixed 而沒有高度
+            const headerEl = document.querySelector('.header-bar');
+            const headerRect = headerEl ? headerEl.getBoundingClientRect() : null;
+
             const cardW = 340;
             const cardH = 260;
 
             const marginT = 100;
-            const marginB = 50;  // 縮小底部邊距，允許卡片延伸到下方 (原 140)
+            const marginB = 60;
             const marginLR = 50;
 
             const availableW = bw - marginLR * 2;
             const availableH = bh - marginT - marginB;
 
-            // 增加網格密度，提供更多候選位置 (4x3 -> 5x4)
-            // 這裡的間距 (20) 設得較小，是為了產生更多交錯的候選點
-            const cols = Math.max(3, Math.floor(availableW / (cardW + 20)));
-            const rows = Math.max(3, Math.floor(availableH / (cardH + 20)));
+            const cols = Math.max(3, Math.floor(availableW / (cardW + 15)));
+            const rows = Math.max(3, Math.floor(availableH / (cardH + 15)));
 
             const cellW = availableW / cols;
             const cellH = availableH / rows;
@@ -2258,9 +2261,25 @@
                     const offsetX = (cellW - cardW) / 2 + (Math.random() - 0.5) * (cellW * 0.4);
                     const offsetY = (cellH - cardH) / 2 + (Math.random() - 0.5) * (cellH * 0.4);
 
+                    const posX = marginLR + c * cellW + offsetX;
+                    const posY = marginT + r * cellH + offsetY;
+
+                    // 避讓邏輯：精準避開左上角 Logo 區域
+                    if (headerRect && window.innerWidth > 600) {
+                        const buffer = 60; // 增加緩衝空間
+                        // 只要卡片的邊界進入 Logo 坐標範圍內，就跳過
+                        const cardRight = posX + cardW;
+                        const cardBottom = posY + cardH;
+
+                        // 檢查重疊：卡片左側 < Logo右側 且 卡片上方 < Logo下方
+                        if (posX < headerRect.right + buffer && posY < headerRect.bottom + buffer) {
+                            continue;
+                        }
+                    }
+
                     gridPositions.push({
-                        x: marginLR + c * cellW + offsetX,
-                        y: marginT + r * cellH + offsetY,
+                        x: posX,
+                        y: posY,
                         rot: (Math.random() - 0.5) * 12
                     });
                 }
