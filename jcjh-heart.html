@@ -650,26 +650,23 @@
             position: relative;
         }
 
+        /* 字級縮放由 JS 動態控制，此處僅保留基礎樣式 */
         .card-content {
-            font-size: var(--font-size, 1.4rem);
             line-height: 1.5;
             font-weight: 400;
             color: #4a3e3e;
             flex: 1;
-            /* 佔據 card-body 的剩餘空間 */
             min-height: 0;
             padding: 0;
-            /* 移除上下 padding，讓 flex 完全置中 */
             word-break: break-all;
-            /* overflow 由 card-body 控制 */
-            overflow: visible;
+            white-space: pre-wrap;
+            /* 確保原始換行生效 */
+            overflow: hidden;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            /* 垂直置中 (Flex Direction 為 Column 時) */
             align-items: center;
-            /* 水平置中 */
             position: relative;
         }
 
@@ -2187,9 +2184,21 @@
             const boardWidth = board.clientWidth;
             const boardHeight = board.clientHeight;
 
-            // 根據設備能力調整共存卡片數量 (恢復電腦版豐盛感)
-            const isMobile = window.innerWidth < 600;
-            const targetCount = isMobile ? 3 : 6;
+            // 根據螢幕寬度動態計算最佳卡片數量
+            const ww = window.innerWidth;
+            let targetCount;
+            if (ww < 600) {
+                targetCount = 3; // 手機直向：3張
+            } else if (ww < 1024) {
+                targetCount = 5; // 平板/手機橫向：5張
+            } else if (ww < 1440) {
+                targetCount = 8; // 小筆電/標準螢幕：8張
+            } else if (ww < 1920) {
+                targetCount = 12; // 大螢幕桌機：12張
+            } else {
+                targetCount = 16; // 4K/超寬螢幕：16張
+            }
+
             const maxOnScreen = Math.min(targetCount, allMessages.length);
 
             // 每次檢查時：
@@ -2326,17 +2335,25 @@
             card.style.setProperty('--tape-pos', tapePos);
             card.style.setProperty('--tape-rot', tapeRot + 'deg');
 
-            // --- 內容處理：Markdown 與 換行偵測 ---
-            const hasNewline = msg.content.includes('\n');
-            const renderedContent = typeof marked !== 'undefined' ? marked.parse(msg.content) : msg.content;
+            // --- 內容處理：動態計算字級，確保原始呈現 ---
+            const content = msg.content || "";
+            const hasNewline = content.includes('\n');
+            const contentLen = content.length;
 
-            // --- 更細緻的字級優化，因為卡片已固定高度 260px ---
-            const contentLen = msg.content.length;
-            let sizeClass = "size-small";
-            if (contentLen < 12) sizeClass = "size-large";
-            else if (contentLen < 27) sizeClass = "size-medium";
-            // 27~60 字使用 small，超過 60 使用 mini
-            else if (contentLen >= 60) sizeClass = "size-mini";
+            // 動態計算字距與字級 (基礎 1.35rem, 隨字數微調)
+            let dynamicFontSize;
+            if (contentLen < 15) {
+                dynamicFontSize = 1.35;
+            } else if (contentLen < 30) {
+                dynamicFontSize = 1.25;
+            } else if (contentLen < 45) {
+                dynamicFontSize = 1.1;
+            } else {
+                dynamicFontSize = 0.95;
+            }
+
+            // 如果有換行，稍微調小一點點以利排版
+            if (hasNewline) dynamicFontSize *= 0.95;
 
 
 
@@ -2372,13 +2389,16 @@
                 </div>
                 <div class="card-body">
                     <div class="card-greeting">致：${msg.target}</div>
-                    <div class="card-content ${sizeClass} ${hasNewline ? 'has-newline' : ''}">${contentHtml}</div>
+                    <div class="card-content ${hasNewline ? 'has-newline' : ''}" style="font-size: ${dynamicFontSize}rem;"></div>
                 </div>
                 <div class="card-footer">
                     <div class="card-tag tag-${msg.tag}">${msg.tag}</div>
                     <div class="card-author">${msg.displayName}</div>
                 </div>
             `;
+
+            // 使用 textContent 確保原始文字（包含 [] 和 \n）原樣呈現且不被解析
+            card.querySelector('.card-content').textContent = content;
 
 
 
