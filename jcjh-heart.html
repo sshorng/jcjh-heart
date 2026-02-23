@@ -72,26 +72,24 @@
         .ambient-glow::after {
             content: '';
             position: absolute;
-            width: 80vmax;
-            height: 80vmax;
+            width: 60vmax;
+            height: 60vmax;
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(40px);
             opacity: 0.35;
-            /* 再次提高光暈不透明度 */
             z-index: -1;
             animation: drift 25s infinite alternate ease-in-out;
+            will-change: transform;
         }
 
         .ambient-glow::before {
             background: radial-gradient(circle, #ff6b6b 0%, transparent 70%);
-            /* 加深光暈顏色 */
             top: -20%;
             left: -10%;
         }
 
         .ambient-glow::after {
             background: radial-gradient(circle, #f08a8a 0%, transparent 70%);
-            /* 加深光暈顏色 */
             bottom: -20%;
             right: -10%;
             animation-duration: 35s;
@@ -163,167 +161,7 @@
         .keyword-highlight { ... } 
         */
 
-        @keyframes floatUp {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(-100px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes rainDown {
-            0% {
-                transform: translateY(-20px) rotate(0deg);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(200px) rotate(180deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes burstOut {
-            0% {
-                transform: translate(0, 0) scale(0.5);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(var(--rot));
-                opacity: 0;
-            }
-        }
-
-        @keyframes spiralIn {
-            0% {
-                transform: translate(0, 0) scale(0.2) rotate(0deg);
-                opacity: 0;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes fireworkUp {
-            0% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: translateY(-150px) scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(-180px) scale(0);
-                opacity: 0;
-            }
-        }
-
-        @keyframes sparkleAnim {
-
-            0%,
-            100% {
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-
-            50% {
-                transform: scale(1.2) rotate(45deg);
-                opacity: 1;
-            }
-        }
-
-        @keyframes explode {
-            0% {
-                transform: translate(0, 0) scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(var(--ex), var(--ey)) scale(0);
-                opacity: 0;
-            }
-        }
-
-        /* ❄️ 飄雪/落葉模式 */
-        @keyframes snowFall {
-            0% {
-                transform: translate(0, -10px) rotate(0deg);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            90% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(var(--sway), 100vh) rotate(var(--rot));
-                opacity: 0;
-            }
-        }
-
-        /* 🏀 彈跳模式 */
-        @keyframes bounceAnim {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-
-            40% {
-                transform: translateY(-30px);
-            }
-
-            60% {
-                transform: translateY(-15px);
-            }
-        }
-
-        /* 💓 脈動模式 */
-        @keyframes pulseHeart {
-            0% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
-
-            50% {
-                transform: scale(1.5);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
-        }
+        /* 舊版 DOM 粒子動畫已移除 (已由 Canvas 特效引擎取代) */
 
         header {
             /* 移除可能干擾固定定位標誌的邊距 */
@@ -585,8 +423,8 @@
             background-size: 20px 20px, 100% 100%;
             border-radius: 12px;
             padding: 22px 28px;
-            width: 380px;
-            height: 300px;
+            width: 329px;
+            height: 260px;
             /* 固定高度，不再隨內容增長 */
             overflow: visible;
             /* 恢復可見，避免裁切掉負定位的紙膠帶 */
@@ -2041,19 +1879,31 @@
                 setInterval(checkSystemConfig, 60000);
 
                 // 使用 rAF 驅動的卡片輪播 (避免 setInterval 的阻塞感)
+                let rotateLoopRunning = true;
                 const rotateLoop = (time) => {
+                    if (!rotateLoopRunning) return; // 頁面不可見時暫停
                     // 全域控制：lastRotateTimestamp 會被 rotateMessages 同步更新
                     if (time - lastRotateTimestamp >= 4000) {
                         rotateMessages();
-                        // 這裡不需要手動 set，因為 rotateMessages 內部會更新，確保所有呼叫來源都能重置計時
                     }
                     requestAnimationFrame(rotateLoop);
                 };
                 requestAnimationFrame(rotateLoop);
 
-                // 電視牆穩定性：每 30 分鐘自動重新整理一次網頁，確保 code 更新能及時生效並釋放記憶體
+                // 效能優化：分頁不可見時暫停 rAF 迴圈，節省 CPU
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        rotateLoopRunning = false;
+                    } else {
+                        rotateLoopRunning = true;
+                        lastRotateTimestamp = performance.now(); // 重置計時，避免回來瞬間連發
+                        requestAnimationFrame(rotateLoop);
+                    }
+                });
+
+                // 電視牆穩定性：每 15 分鐘自動重新整理一次網頁，釋放記憶體 (舊硬體友善)
                 if (isDisplayMode) {
-                    setInterval(() => location.reload(), 1800000);
+                    setInterval(() => location.reload(), 900000);
                 }
             }
 
@@ -2117,13 +1967,18 @@
         }
 
         // --- 核心功能：檢查系統設定 (測試模式) ---
+        let _isLoadingConfig = false;
         async function checkSystemConfig() {
-            const config = await fetchAPI('getSystemConfig');
-            if (config) {
-                if (typeof config.isInternalTest !== 'undefined') isInternalTest = config.isInternalTest;
-                if (typeof config.submissionMode !== 'undefined') currentSubmissionMode = config.submissionMode;
-                applySystemConfig();
-            }
+            if (_isLoadingConfig) return; // 防止 fetch 堆疊
+            _isLoadingConfig = true;
+            try {
+                const config = await fetchAPI('getSystemConfig');
+                if (config) {
+                    if (typeof config.isInternalTest !== 'undefined') isInternalTest = config.isInternalTest;
+                    if (typeof config.submissionMode !== 'undefined') currentSubmissionMode = config.submissionMode;
+                    applySystemConfig();
+                }
+            } finally { _isLoadingConfig = false; }
         }
 
         function applySystemConfig() {
@@ -2191,57 +2046,67 @@
 
         // --- 核心功能：讀取公告跑馬燈 ---
         let currentAnnouncements = [];
+        let _isLoadingAnn = false;
         async function loadAnnouncements() {
-            const ticker = document.getElementById('announcementTicker');
-            const content = document.getElementById('tickerContent');
-            const res = await fetchAPI('getAnnouncements');
+            if (_isLoadingAnn) return; // 防止 fetch 堆疊
+            _isLoadingAnn = true;
+            try {
+                const ticker = document.getElementById('announcementTicker');
+                const content = document.getElementById('tickerContent');
+                const res = await fetchAPI('getAnnouncements');
 
-            if (res && Array.isArray(res) && res.length > 0) {
-                currentAnnouncements = res;
-                content.innerHTML = '';
-                // 重複兩次以實現無縫滾動效果
-                const items = res.map(a => `<div class="ticker-item"><i class="fas fa-bullhorn"></i> ${a.content}</div>`).join('');
-                content.innerHTML = items + items; // 雙倍內容確保循環
-                ticker.style.display = 'flex';
-                // 根據公告長度動態調整動畫時間 (回復至每則 45s，維持最舒適的慢節奏)
-                content.style.animationDuration = `${res.length * 45}s`;
-            } else {
-                ticker.style.display = 'none';
-            }
+                if (res && Array.isArray(res) && res.length > 0) {
+                    currentAnnouncements = res;
+                    content.innerHTML = '';
+                    // 重複兩次以實現無縫滾動效果
+                    const items = res.map(a => `<div class="ticker-item"><i class="fas fa-bullhorn"></i> ${a.content}</div>`).join('');
+                    content.innerHTML = items + items; // 雙倍內容確保循環
+                    ticker.style.display = 'flex';
+                    // 根據公告長度動態調整動畫時間 (回復至每則 45s，維持最舒適的慢節奏)
+                    content.style.animationDuration = `${res.length * 45}s`;
+                } else {
+                    ticker.style.display = 'none';
+                }
+            } finally { _isLoadingAnn = false; }
         }
+        let _isLoadingMsg = false;
         async function loadMessages() {
-            const board = document.getElementById('messageBoard');
-            const result = await fetchAPI('getMessages');
-            if (result && !result.error) {
-                allMessages = result;
+            if (_isLoadingMsg) return; // 防止 fetch 堆疊
+            _isLoadingMsg = true;
+            try {
+                const board = document.getElementById('messageBoard');
+                const result = await fetchAPI('getMessages');
+                if (result && !result.error) {
+                    allMessages = result;
 
-                // 標籤過濾邏輯
-                let filterToUse = currentFilterTag || (topicConfig.defaultWallTags ? topicConfig.defaultWallTags.split(',').map(t => t.trim()) : []);
-                if (typeof filterToUse === 'string') filterToUse = [filterToUse];
-                filterToUse = filterToUse.filter(t => t);
+                    // 標籤過濾邏輯
+                    let filterToUse = currentFilterTag || (topicConfig.defaultWallTags ? topicConfig.defaultWallTags.split(',').map(t => t.trim()) : []);
+                    if (typeof filterToUse === 'string') filterToUse = [filterToUse];
+                    filterToUse = filterToUse.filter(t => t);
 
-                if (filterToUse.length > 0) {
-                    allMessages = allMessages.filter(m => {
-                        const mTag = m.topicTag ? m.topicTag.trim() : "";
-                        return filterToUse.some(f => mTag === f.trim());
-                    });
-                }
+                    if (filterToUse.length > 0) {
+                        allMessages = allMessages.filter(m => {
+                            const mTag = m.topicTag ? m.topicTag.trim() : "";
+                            return filterToUse.some(f => mTag === f.trim());
+                        });
+                    }
 
-                if (pendingSequence.length === 0 && allMessages.length > 0) {
-                    refreshSequence();
-                }
-                if (allMessages.length === 0) {
-                    board.innerHTML = '<div style="opacity:0.5;">目前還沒有溫暖的留言，快來寫第一則吧！</div>';
-                } else if (board.innerHTML.includes('目前還沒有')) {
-                    board.innerHTML = '';
-                }
+                    if (pendingSequence.length === 0 && allMessages.length > 0) {
+                        refreshSequence();
+                    }
+                    if (allMessages.length === 0) {
+                        board.innerHTML = '<div style="opacity:0.5;">目前還沒有溫暖的留言，快來寫第一則吧！</div>';
+                    } else if (board.innerHTML.includes('目前還沒有')) {
+                        board.innerHTML = '';
+                    }
 
-                // 若剛載入且畫面全空，立即觸發第一張，避免等待
-                if (board.querySelectorAll('.message-card').length === 0) {
-                    rotateMessages();
+                    // 若剛載入且畫面全空，立即觸發第一張，避免等待
+                    if (board.querySelectorAll('.message-card').length === 0) {
+                        rotateMessages();
+                    }
+                    // 不再執行 board.innerHTML = ''，讓 rotateMessages 自然更迭留言
                 }
-                // 不再執行 board.innerHTML = ''，讓 rotateMessages 自然更迭留言
-            }
+            } finally { _isLoadingMsg = false; }
         }
 
         // --- 核心功能：隨機旋轉留言卡片 ---
@@ -2342,8 +2207,8 @@
             const headerEl = document.querySelector('.header-bar');
             const headerRect = headerEl ? headerEl.getBoundingClientRect() : null;
 
-            const cardW = 380;
-            const cardH = 300;
+            const cardW = 329;
+            const cardH = 260;
 
             const marginT = 60; // 大幅上移，填補上方空間
             const marginB = 60;
@@ -2414,9 +2279,9 @@
             // 為了效能與隨機性，我們遍歷所有候選點，因為數量不多 (約 20-30 個)
             for (const pos of gridPositions) {
                 // 計算此候選點(中心)與所有現存卡片(中心)的最近距離
-                // 預估卡片中心 x = pos.x + 190, y = pos.y + 150
-                const centerX = pos.x + 190;
-                const centerY = pos.y + 150;
+                // 預估卡片中心 x = pos.x + 165, y = pos.y + 130
+                const centerX = pos.x + 165;
+                const centerY = pos.y + 130;
 
                 let minDist = Infinity;
 
@@ -2441,8 +2306,8 @@
             // 使用評估出的最佳位置 (如果 maxMinDist 仍很小，表示螢幕真的很滿，但也盡力選了最空的)
 
             // 安全限制：確保卡片完全在可見範圍內 (預留邊距)
-            const safeX = Math.max(30, Math.min(bestPos.x, bw - 420));
-            const safeY = Math.max(80, Math.min(bestPos.y, bh - 360));
+            const safeX = Math.max(30, Math.min(bestPos.x, bw - 369));
+            const safeY = Math.max(80, Math.min(bestPos.y, bh - 320));
 
             card.style.setProperty('--rot', `${bestPos.rot}deg`);
             card.style.top = `${safeY}px`;
@@ -3244,6 +3109,11 @@
             }
 
             addParticles(element, mode, icon) {
+                // 效能閥門：限制粒子總數上限，防止記憶體爆炸
+                if (this.particles.length > 200) {
+                    this.particles.length = 100; // 截斷至一半，保留較新的粒子
+                }
+
                 const rect = element ? element.getBoundingClientRect() : { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
@@ -3392,41 +3262,6 @@
             effectEngine.addParticles(element, mode, icon);
         }
 
-        function createExplosion(container, icon) {
-            const particleCount = 12; // 調降數量
-            for (let i = 0; i < particleCount; i++) {
-                const p = document.createElement('div');
-                p.textContent = icon;
-                p.className = 'particle';
-                p.style.fontSize = (10 + Math.random() * 10) + 'px';
-
-                p.style.left = '50%';
-                p.style.top = '20%';
-
-                const rad = Math.random() * Math.PI * 2;
-                const dist = 40 + Math.random() * 100;
-                const dx = Math.cos(rad) * dist;
-                const dy = Math.sin(rad) * dist;
-
-                if (p.animate) {
-                    p.animate([
-                        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`, opacity: 0 }
-                    ], { duration: 800, easing: 'ease-out', fill: 'forwards' });
-                    setTimeout(() => p.remove(), 850);
-                } else {
-                    p.style.transition = 'all 0.8s ease-out';
-                    p.style.transform = 'translate(-50%, -50%) scale(1)';
-                    p.style.opacity = '1';
-                    setTimeout(() => {
-                        p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`;
-                        p.style.opacity = '0';
-                        setTimeout(() => p.remove(), 850);
-                    }, 50);
-                }
-                container.appendChild(p);
-            }
-        }
 
         // --- 設定與工具 ---
         // --- 生成學生寫留言專用分享連結 ---
