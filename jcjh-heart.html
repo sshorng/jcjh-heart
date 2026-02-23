@@ -456,30 +456,88 @@
         }
 
         .fab-qr-wrapper {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             background: white;
-            /* 確保背景純白提升對比 */
             padding: 10px;
-            border-radius: 20px;
-            border: 1px solid var(--primary-coral);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            border-radius: 24px;
+            border: 2px solid var(--primary-coral);
+            box-shadow: 0 15px 45px rgba(230, 103, 103, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .fab-qr-wrapper:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.7);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(230, 103, 103, 0.3);
+        }
+
+        .fab-qr-wrapper::before {
+            content: '點擊寫留言';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--primary-coral);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 4px 0;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.3s ease;
+        }
+
+        .fab-qr-wrapper:hover::before {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .fab-qr-img {
-            width: 110px;
-            height: 110px;
+            width: 120px;
+            height: 120px;
             display: block;
-            border-radius: 8px;
-            /* 移除可能降低對比度的視覺效果 */
+            border-radius: 12px;
+        }
+
+        .qr-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 8px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            pointer-events: none;
+            width: 40px;
+            height: 40px;
+        }
+
+        .fab-qr-wrapper:hover .qr-label {
+            background: var(--primary-coral);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .qr-label i {
+            font-size: 1.2rem;
+            color: var(--primary-coral);
+            transition: color 0.3s ease;
+        }
+
+        .fab-qr-wrapper:hover .qr-label i {
+            color: white;
         }
 
         .admin-entry button {
@@ -527,8 +585,8 @@
             background-size: 20px 20px, 100% 100%;
             border-radius: 12px;
             padding: 22px 28px;
-            width: 340px;
-            height: 260px;
+            width: 380px;
+            height: 300px;
             /* 固定高度，不再隨內容增長 */
             overflow: visible;
             /* 恢復可見，避免裁切掉負定位的紙膠帶 */
@@ -1493,7 +1551,8 @@
             color: var(--primary-coral);
         }
 
-        .ann-input {
+        .ann-input,
+        .admin-input {
             flex: 1;
             padding: 10px 14px;
             border: 1px solid #ddd;
@@ -1607,15 +1666,13 @@
 
     <!-- 整合式功能球：QR + 寫留言 -->
     <div class="fab-container">
-        <!-- 常駐 QR Code (掃碼即用) -->
-        <div id="shareWriteQrWrapper" class="fab-qr-wrapper" title="掃碼即可寫留言（免設定）">
+        <!-- 整合式 QR Code：點擊開啟、掃碼分享 -->
+        <div id="shareWriteQrWrapper" class="fab-qr-wrapper" onclick="openPostModal()" title="點擊直接寫留言 / 掃碼分享（免設定）">
             <img id="fabQrImg" class="fab-qr-img" src="" alt="QR">
+            <div class="qr-label">
+                <i class="fas fa-feather-alt"></i>
+            </div>
         </div>
-
-        <button class="fab" onclick="openPostModal()">
-            <i class="fas fa-feather-alt pulsate"></i>
-            <span>寫留言</span>
-        </button>
     </div>
 
     <!-- 右下角隱藏入口 (位於 adminModal 之前) -->
@@ -1811,11 +1868,11 @@
                             style="background: #fff5f2; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #e66767;">
                             <h4 style="margin: 0 0 10px 0; color: #e66767; font-size: 0.95rem;">新增特效規則</h4>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <input type="text" id="new-effect-keyword" placeholder="關鍵字 (e.g. 新年)" class="ann-input"
-                                    style="min-height: 40px; flex: 2;">
-                                <input type="text" id="new-effect-icon" placeholder="Emoji (e.g. 🧧)" class="ann-input"
-                                    style="min-height: 40px; flex: 1; text-align: center;">
-                                <select id="new-effect-mode" class="ann-input" style="min-height: 40px; flex: 2;">
+                                <input type="text" id="new-effect-keyword" placeholder="關鍵字 (e.g. 新年)"
+                                    class="admin-input" style="min-height: 40px; flex: 2;">
+                                <input type="text" id="new-effect-icon" placeholder="Emoji (e.g. 🧧)"
+                                    class="admin-input" style="min-height: 40px; flex: 1; text-align: center;">
+                                <select id="new-effect-mode" class="admin-input" style="min-height: 40px; flex: 2;">
                                     <option value="burst">💥 噴發 (Burst)</option>
                                     <option value="float">🎈 漂浮 (Float)</option>
                                     <option value="rain">🌧️ 雨落 (Rain)</option>
@@ -1857,7 +1914,7 @@
                             style="background: #fff5f2; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #b07d62;">
                             <div style="display: flex; gap: 10px;">
                                 <input type="text" id="new-topic-tag-input" placeholder="新標籤 (例如：#學校日)"
-                                    class="ann-input" style="min-height: 40px; flex: 1;">
+                                    class="admin-input" style="min-height: 40px; flex: 1;">
                                 <button class="btn-approve" onclick="addTopicToLibrary()"
                                     style="padding: 0 20px;">新增標籤</button>
                             </div>
@@ -2019,7 +2076,7 @@
             const qrImg = document.getElementById('fabQrImg');
             if (!qrImg) return;
             const fullShareUrl = "https://jcjh.vercel.app/jcjh-heart.html?write=true";
-            qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(fullShareUrl)}&size=200&margin=1&dark=c23a3a&light=ffffff`;
+            qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(fullShareUrl)}&size=200&margin=1&dark=c23a3a&light=ffffff&ecLevel=H`;
             console.log("已生成寫留言專用靜態 QR Code");
         }
 
@@ -2285,8 +2342,8 @@
             const headerEl = document.querySelector('.header-bar');
             const headerRect = headerEl ? headerEl.getBoundingClientRect() : null;
 
-            const cardW = 340;
-            const cardH = 260;
+            const cardW = 380;
+            const cardH = 300;
 
             const marginT = 60; // 大幅上移，填補上方空間
             const marginB = 60;
@@ -2296,8 +2353,8 @@
             const availableH = bh - marginT - marginB;
 
             // 極大化密度：使用負間距產生大量候選點供 Collision 算法篩選
-            const cols = Math.max(5, Math.floor(availableW / (cardW - 50)));
-            const rows = Math.max(4, Math.floor(availableH / (cardH - 50)));
+            const cols = Math.max(4, Math.floor(availableW / (cardW - 60)));
+            const rows = Math.max(3, Math.floor(availableH / (cardH - 60)));
 
             const cellW = availableW / cols;
             const cellH = availableH / rows;
@@ -2357,9 +2414,9 @@
             // 為了效能與隨機性，我們遍歷所有候選點，因為數量不多 (約 20-30 個)
             for (const pos of gridPositions) {
                 // 計算此候選點(中心)與所有現存卡片(中心)的最近距離
-                // 預估卡片中心 x = pos.x + 170, y = pos.y + 130
-                const centerX = pos.x + 170;
-                const centerY = pos.y + 130;
+                // 預估卡片中心 x = pos.x + 190, y = pos.y + 150
+                const centerX = pos.x + 190;
+                const centerY = pos.y + 150;
 
                 let minDist = Infinity;
 
@@ -2384,8 +2441,8 @@
             // 使用評估出的最佳位置 (如果 maxMinDist 仍很小，表示螢幕真的很滿，但也盡力選了最空的)
 
             // 安全限制：確保卡片完全在可見範圍內 (預留邊距)
-            const safeX = Math.max(30, Math.min(bestPos.x, bw - 380));
-            const safeY = Math.max(80, Math.min(bestPos.y, bh - 320));
+            const safeX = Math.max(30, Math.min(bestPos.x, bw - 420));
+            const safeY = Math.max(80, Math.min(bestPos.y, bh - 360));
 
             card.style.setProperty('--rot', `${bestPos.rot}deg`);
             card.style.top = `${safeY}px`;
@@ -3019,7 +3076,7 @@
         }
 
         async function saveAnnouncements() {
-            const inputs = document.querySelectorAll('.ann-input');
+            const inputs = document.querySelector('#ann-list-editor').querySelectorAll('.ann-input');
             const announcements = Array.from(inputs)
                 .map(i => ({ content: i.value.trim() }))
                 .filter(a => a.content !== "");
