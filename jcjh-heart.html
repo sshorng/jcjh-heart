@@ -60,9 +60,6 @@
             width: 100%;
             height: 100%;
             background: var(--soft-cream);
-            /* 加入極薄的顆粒感紋理，打破大螢幕的糊化感 */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            background-blend-mode: soft-light;
             opacity: 0.96;
             z-index: -1;
             overflow: hidden;
@@ -119,14 +116,8 @@
         }
 
         @font-face {
-            font-family: 'Fluent Emoji Color';
-            src: url('https://tetunori.github.io/fluent-emoji-webfont/dist/FluentEmojiColor.woff2') format('woff2');
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: 'OpenMoji Color';
-            src: url('https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji/font/OpenMoji-color-glyf_colr_0/OpenMoji-color-glyf_colr_0.woff2') format('woff2');
+            font-family: 'Noto Color Emoji';
+            src: url('https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/fonts/NotoColorEmoji.ttf') format('truetype');
             font-display: swap;
         }
 
@@ -138,23 +129,6 @@
             /* 強制使用網頁字體，優先 Twemoji 再 Noto */
             font-family: 'Twemoji Color', 'Noto Color Emoji', sans-serif;
             font-variant-emoji: emoji;
-        }
-
-        /* 風格擴充：一律強制套用 Twemoji */
-        .particle.font-noto {
-            font-family: 'Noto Color Emoji', sans-serif !important;
-        }
-
-        .particle.font-twemoji {
-            font-family: 'Twemoji Color', sans-serif !important;
-        }
-
-        .particle.font-fluent {
-            font-family: 'Fluent Emoji Color', sans-serif !important;
-        }
-
-        .particle.font-openmoji {
-            font-family: 'OpenMoji Color', sans-serif !important;
         }
 
         /* 取消關鍵字高亮樣式
@@ -175,10 +149,8 @@
             /* 36px 跑馬燈 + 10px 緊湊留白 */
             left: 1.5rem;
             z-index: 2000;
-            background: rgba(255, 255, 255, 0.4);
-            /* 使用質感更佳的 0.4 透明度 */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: #FDE5E3;
+            /* 純淨、溫暖的粉橘色系底色 */
             padding: 0.8rem 1.8rem;
             border-radius: 40px;
             border: 1px solid var(--glass-border);
@@ -414,13 +386,9 @@
             pointer-events: none;
         }
 
-        /* 頂級質感：高級紙質與紙膠帶卡片 */
+        /* 頂級質感：純淨紙質卡片（移除 GPU 高負載的點狀背景） */
         .message-card {
             background: #fffdf9;
-            background-image:
-                radial-gradient(#e5e5e5 0.5px, transparent 0.5px),
-                linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
-            background-size: 20px 20px, 100% 100%;
             border-radius: 12px;
             padding: 22px 28px;
             width: 350px;
@@ -455,8 +423,8 @@
             transform: translateX(-50%) rotate(0.5deg);
             width: 100px;
             height: 32px;
-            background: rgba(255, 220, 180, 0.5);
-            backdrop-filter: blur(4px);
+            background: #fdf0e0;
+            /* 實心紙張色，移除 backdrop-filter */
             z-index: 5;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             /* 和紙纖維紋理 */
