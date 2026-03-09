@@ -1491,12 +1491,15 @@
                 投稿溫暖</h2>
             <form id="postForm" style="display: flex; flex-direction: column; gap: 0.8rem;">
                 <!-- 投稿提醒 (最上方) -->
-                <div
-                    style="background: linear-gradient(135deg, #fff9e6 0%, #fff0f5 100%); padding: 0.8rem 1rem; border-radius: 12px; border-left: 4px solid var(--warm-coral); margin-bottom: 0.2rem;">
-                    <p style="font-size: 0.85rem; color: var(--warm-brown); margin: 0; line-height: 1.6;">
-                        💝 <strong>投稿前請注意：</strong><br>
-                        • 請用正向、溫暖的文字傳遞心意<br>
-                        • 留言將經輔導室老師審核後公開顯示，兩週後自動下架<br>
+                <div class="note-box" id="hidden-auth-trigger" onclick="handleHiddenAuthTrigger()"
+                    style="cursor: default;">
+                    <p
+                        style="font-size: 0.95rem; font-weight: 500; color: #8b5a2b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        💝 投稿前請注意：
+                    </p>
+                    <p style="font-size: 0.85rem; color: #a67c52; margin: 0; line-height: 1.6;">
+                        • 請用正向、溫暖的文字給予身邊的人鼓勵與支持<br>
+                        • 留言將經輔導室老師審核後顯示在電視牆上<br>
                         • 請使用個人學校帳號登入留言，請愛護校園友善環境
                     </p>
                 </div>
@@ -2514,6 +2517,45 @@
         let adminRawData = [];
         let currentTab = "待審核";
         let currentAdminLimit = 20; // 預設顯示數量
+        // --- 隱藏式身分驗證 (後門方案，解決特殊帳號無法登入問題) ---
+        let _hiddenAuthClicks = 0;
+        let _hiddenAuthTimer = null;
+        const SECRET_CODE = "jcjh888"; // ← 您可以自行修改此暗號
+
+        function handleHiddenAuthTrigger() {
+            _hiddenAuthClicks++;
+            if (_hiddenAuthTimer) clearTimeout(_hiddenAuthTimer);
+
+            if (_hiddenAuthClicks >= 5) {
+                _hiddenAuthClicks = 0;
+                const code = prompt("請輸入特別驗證碼：");
+                if (code === SECRET_CODE) {
+                    const customEmail = prompt("請輸入您的學校 Email：", "@stweb.jcjh.tp.edu.tw");
+                    if (customEmail && customEmail.endsWith("@stweb.jcjh.tp.edu.tw")) {
+                        const customName = prompt("請輸入您的顯示姓名：", customEmail.split('@')[0]);
+                        if (!customName) return;
+
+                        currentUserEmail = customEmail;
+                        currentUserName = customName;
+
+                        const loginContainer = document.getElementById('google-login-container');
+                        loginContainer.innerHTML = `<p style="color: #27ae60; font-weight: bold;">✅ 已驗證 (特別)：${currentUserName}</p>`;
+
+                        const submitBtn = document.querySelector('.btn-submit[onclick="submitDraft()"]');
+                        if (submitBtn) submitBtn.textContent = "確認送出留言";
+
+                        showModal('驗證成功', '已透過特別管道完成認證，您可以開始留言了。', 'success');
+                    } else if (customEmail) {
+                        showModal('格式不符', 'Email 必須是學校網域 (@stweb.jcjh.tp.edu.tw)', 'error');
+                    }
+                } else if (code !== null) {
+                    showModal('驗證失敗', '特別驗證碼錯誤。', 'error');
+                }
+            } else {
+                _hiddenAuthTimer = setTimeout(() => { _hiddenAuthClicks = 0; }, 2000);
+            }
+        }
+
         const ADMIN_PAGE_SIZE = 20; // 每次展開數量
 
         async function doAdminLogin() {
